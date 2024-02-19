@@ -2,21 +2,19 @@ import * as THREE from 'three'
 import Config from './Config.class.js';
 
 class Camera {
-    constructor() {
+    constructor(player) {
         this.config = new Config();
-        /** CAMERA **/
-        this.camera = new THREE.PerspectiveCamera(57, window.innerWidth / window.innerHeight, 1, 3500);
-        this.camera.position.set(-30, 3, -30); // Position initiale de la caméra
-        this.camera.rotation.y = 10;
+        this.player = player; // Référence au joueur
+
+        // Créer une caméra qui suit le joueur
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.cameraOffset = new THREE.Vector3(0, 10, -20); // Ajustez l'offset de la caméra selon votre scène
+
         /** SIZES **/
         this.sizes = {
             width: window.innerWidth,
             height: window.innerHeight
         }
-
-        // Add raycaster and mouse vector
-        this.raycaster = new THREE.Raycaster();
-        this.mouse = new THREE.Vector2();
 
         window.addEventListener('resize', () => {
             // Update sizes
@@ -31,22 +29,15 @@ class Camera {
             this.config.renderer.setSize(this.sizes.width, this.sizes.height)
             this.config.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
         })
-
-        // Initialize targetPosition
-        this.targetPosition = new THREE.Vector3();
-        this.moveX = (distance) => {
-            this.camera.position.x += distance;
-        };
-
-        this.moveZ = (distance) => {
-            this.camera.position.z += distance;
-        };
     }
-    // Add a method to move the camera towards the target position
+
+
+
+    // Méthode pour mettre à jour la position de la caméra pour suivre le joueur
     update() {
-        if (!this.targetPosition.equals(this.camera.position)) {
-            // Set the camera's position to the target position
-            this.camera.position.copy(this.targetPosition);
+        if (this.player.model) {
+            this.camera.position.copy(this.player.model.position).add(this.cameraOffset);
+            this.camera.lookAt(this.player.model.position);
         }
     }
 }
