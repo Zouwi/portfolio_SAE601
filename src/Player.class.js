@@ -45,17 +45,21 @@ class Player {
 
             // Mettre à jour la position du joueur en fonction de la vélocité
             this.model.position.add(this.velocity);
+
+            // Réinitialiser la vélocité après chaque frame (facultatif)
+            // Vous pouvez commenter ou supprimer cette ligne si vous souhaitez conserver la vélocité entre les frames
+            this.velocity.set(0, 0, 0);
         }
     }
 
     // Méthode pour déplacer le joueur vers la gauche
     moveLeft() {
-        this.velocity.x = -this.speed;
+        this.velocity.x = this.speed;
     }
 
     // Méthode pour déplacer le joueur vers la droite
     moveRight() {
-        this.velocity.x = this.speed;
+        this.velocity.x = -this.speed;
     }
 
     // Méthode pour arrêter le mouvement horizontal du joueur
@@ -65,12 +69,12 @@ class Player {
 
     // Méthode pour déplacer le joueur vers l'avant
     moveForward() {
-        this.velocity.z = -this.speed;
+        this.velocity.z = this.speed;
     }
 
     // Méthode pour déplacer le joueur vers l'arrière
     moveBackward() {
-        this.velocity.z = this.speed;
+        this.velocity.z = -this.speed;
     }
 
     // Méthode pour arrêter le mouvement vertical du joueur

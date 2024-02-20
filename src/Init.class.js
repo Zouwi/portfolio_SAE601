@@ -4,18 +4,18 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js";
 import Config from './Config.class.js';
 import Camera from './Camera.class.js';
 import Player from './Player.class.js';
+import KeyDisplay from './Character.class.js';
+import Controls from './Controls.class.js';
+import { CameraHelper } from 'three';
 
 class Init {
     constructor() {
         const config = new Config();
-
+        const camera = new Camera();
         let player; // Déclarez une variable player
-
+        let characterControls;
         // Créer une instance de Player
         player = new Player();
-
-        // Créer une instance de Camera en passant la référence du joueur
-        const camera = new Camera(player);
 
         let scene3D;
         /** ENVIRONMENT **/
@@ -41,17 +41,60 @@ class Init {
         plane.position.z = 10; // Position the plane behind your scene
         //config.scene.add(plane);
 
-/*// Controls
-        const controls = new OrbitControls(camera.camera, config.canvas)
-        controls.enableDamping = true*/
-
-
+        /** RENDERER**/
         config.renderer.shadowMap.enabled = true;
         config.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
         config.renderer.setSize(camera.sizes.width, camera.sizes.height)
         config.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-        // Gérer les événements du clavier pour le déplacement du joueur
+        // CONTROLS
+        // Create OrbitControls
+        // Créer une instance de Camera en passant la référence du joueur
+        const orbitControls = new OrbitControls(camera.camera, config.renderer.domElement);
+        orbitControls.enableDamping = true;
+        orbitControls.minDistance = 5;
+        orbitControls.maxDistance = 15;
+        orbitControls.enablePan = false;
+        orbitControls.maxPolarAngle = Math.PI / 2 - 0.05;
+        orbitControls.update();
+
+        // MODEL WITH ANIMATIONS
+        // Load 3D model and create player and controls
+        config.loader.load('./models/Soldier.glb', function (gltf) {
+            const model = gltf.scene;
+            model.traverse(function (object) {
+                if (object.isMesh) object.castShadow = true;
+            });
+            config.scene.add(model);
+
+            const gltfAnimations = gltf.animations;
+            const mixer = new THREE.AnimationMixer(model);
+            const animationsMap = new Map();
+            gltfAnimations.filter(a => a.name !== 'TPose').forEach((a) => {
+                animationsMap.set(a.name, mixer.clipAction(a))
+            });
+
+            // Create Controls instance once the model is loaded
+            characterControls = new Controls(model, mixer, animationsMap, orbitControls, camera, 'Idle');
+        });
+
+        // CONTROL KEYS
+        const keysPressed = {};
+        const keyDisplayQueue = new KeyDisplay();
+        document.addEventListener('keydown', (event) => {
+            keyDisplayQueue.down(event.key);
+            if (event.shiftKey && characterControls) {
+                characterControls.switchRunToggle();
+            } else {
+                keysPressed[event.key.toLowerCase()] = true;
+            }
+        }, false);
+        document.addEventListener('keyup', (event) => {
+            keyDisplayQueue.up(event.key);
+            keysPressed[event.key.toLowerCase()] = false;
+        }, false);
+
+        /*// Gérer les événements du clavier pour le déplacement du joueur
         document.addEventListener('keydown', (event) => {
             switch (event.key) {
                 case 'ArrowUp':
@@ -84,7 +127,7 @@ class Init {
                     player.stopMovingHorizontal();
                     break;
             }
-        });
+        });*/
 
         /**
          * Animate
@@ -94,14 +137,18 @@ class Init {
         const tick = () => {
             const elapsedTime = clock.getElapsedTime()
 
-            /*// Update controls
-            controls.update()*/
+            let mixerUpdateDelta = clock.getDelta();
+            if (characterControls) {
+                characterControls.update(mixerUpdateDelta, keysPressed);
+            }
+            orbitControls.update()
+
 
             // Update camera
-            camera.update();
+            //camera.update();
 
             // Update player
-            player.update()
+            //player.update();
 
             // Render
             config.renderer.render(config.scene, camera.camera);

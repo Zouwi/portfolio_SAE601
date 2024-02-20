@@ -2,16 +2,11 @@ import * as THREE from 'three'
 import Config from './Config.class.js';
 
 class Camera {
-    constructor(player) {
+    constructor() {
         this.config = new Config();
-        this.player = player; // Référence au joueur
-
-        // Créer une caméra qui suit le joueur
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.cameraOffset = new THREE.Vector3(0, 10, -20); // Ajustez l'offset de la caméra selon votre scène
-
         /** SIZES **/
         this.sizes = {
+
             width: window.innerWidth,
             height: window.innerHeight
         }
@@ -29,16 +24,13 @@ class Camera {
             this.config.renderer.setSize(this.sizes.width, this.sizes.height)
             this.config.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
         })
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera.position.set(0, 5, 10);
+        this.camera.lookAt(0, 0, 0);
     }
 
-
-
-    // Méthode pour mettre à jour la position de la caméra pour suivre le joueur
-    update() {
-        if (this.player.model) {
-            this.camera.position.copy(this.player.model.position).add(this.cameraOffset);
-            this.camera.lookAt(this.player.model.position);
-        }
+    getCamera() {
+        return this.camera;
     }
 }
 

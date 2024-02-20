@@ -5,5 +5,5 @@ import Player from "./Player.class.js";
 
 let camera = new Camera();
 let player = new Player();
-let init = new Init(camera, player);
+let init = new Init();
 let light = new Light();

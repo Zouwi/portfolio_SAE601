@@ -11,6 +11,7 @@ class Config {
         this.textureLoader = new THREE.TextureLoader();
         this.loader = new GLTFLoader();
         this.JSONloader = new THREE.ObjectLoader();
+        this.animation = new THREE.AnimationMixer();
         /** RENDERER **/
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas
