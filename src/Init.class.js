@@ -23,7 +23,7 @@ class Init {
             console.log(gltf);
                 scene3D = gltf;
                 scene3D.scale.set(1, 1, 1);
-                scene3D.position.y = -2;
+                scene3D.position.y = 0;
                 scene3D.position.x = 0;
                 scene3D.position.z = 0;
                 config.scene.add(scene3D);
@@ -34,12 +34,19 @@ class Init {
                 console.error(error);
             });
 
-        // Add a large invisible plane behind your scene
-        const geometry = new THREE.PlaneGeometry(1000, 1000);
-        const material = new THREE.MeshBasicMaterial({visible: true, color: 0x00ff00, side: THREE.DoubleSide});
-        const plane = new THREE.Mesh(geometry, material);
-        plane.position.z = 10; // Position the plane behind your scene
-        //config.scene.add(plane);
+        /**BACKGROUND **/
+        config.loader.load('./scene/skybox_autumn_forest.glb', function (gltf) {
+            const model = gltf.scene;
+            model.scale.set(0.3, 0.3, 0.3);
+            model.position.y = 0;
+            model.position.x = 0;
+            model.position.z = 0;
+            model.traverse(function (object) {
+                if (object.isMesh) object.castShadow = true;
+                if (object.isMesh) object.receiveShadow = true;
+            });
+            config.scene.add(model);
+        });
 
         /** RENDERER**/
         config.renderer.shadowMap.enabled = true;
@@ -60,17 +67,22 @@ class Init {
 
         // MODEL WITH ANIMATIONS
         // Load 3D model and create player and controls
-        config.loader.load('./models/Soldier.glb', function (gltf) {
+        config.loader.load('./models/mareep_animated.glb', function (gltf) {
             const model = gltf.scene;
+            model.scale.set(0.5, 0.5, 0.5);
+            model.position.y = 0.1;
+            model.position.x = -18;
+            model.position.z = -17;
             model.traverse(function (object) {
                 if (object.isMesh) object.castShadow = true;
+                if (object.isMesh) object.receiveShadow = true;
             });
             config.scene.add(model);
 
             const gltfAnimations = gltf.animations;
             const mixer = new THREE.AnimationMixer(model);
             const animationsMap = new Map();
-            gltfAnimations.filter(a => a.name !== 'TPose').forEach((a) => {
+            gltfAnimations.filter(a => a.name !== 'Static Pose').forEach((a) => {
                 animationsMap.set(a.name, mixer.clipAction(a))
             });
 
@@ -132,12 +144,17 @@ class Init {
         /**
          * Animate
          */
-        const clock = new THREE.Clock()
+        const clockElapse = new THREE.Clock();
+        const clockDelta = new THREE.Clock();
 
         const tick = () => {
-            const elapsedTime = clock.getElapsedTime()
+            // Render
+            config.renderer.render(config.scene, camera.camera);
 
-            let mixerUpdateDelta = clock.getDelta();
+            const elapsedTime = clockElapse.getElapsedTime()
+
+            let mixerUpdateDelta = clockDelta.getDelta();
+
             if (characterControls) {
                 characterControls.update(mixerUpdateDelta, keysPressed);
             }
@@ -150,8 +167,7 @@ class Init {
             // Update player
             //player.update();
 
-            // Render
-            config.renderer.render(config.scene, camera.camera);
+
 
             // Call tick again on the next frame
             window.requestAnimationFrame(tick)

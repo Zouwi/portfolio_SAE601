@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { A, D, DIRECTIONS, S, W } from './Character.class.js'
+import { Q, D, DIRECTIONS, S, Z } from './Character.class.js'
 import Camera from './Camera.class.js'
 
 
@@ -10,11 +10,11 @@ export class Controls {
         this.mixer = mixer;
         this.animationsMap = animationsMap;
         this.currentAction = currentAction;
-        /*this.animationsMap.forEach((value, key) => {
+        this.animationsMap.forEach((value, key) => {
             if (key === currentAction) {
                 value.play();
             }
-        });*/
+        });
         this.orbitControl = orbitControl;
         this.camera = camera;
         this.cameraObject = this.camera.getCamera(); // Utilisez la méthode pour récupérer la caméra de l'instance de Camera
@@ -32,9 +32,9 @@ export class Controls {
 
 
         // constants
-        this.fadeDuration = 0.2;
-        this.runVelocity = 0.5;
-        this.walkVelocity = 1;
+        this.fadeDuration = 0.1;
+        this.runVelocity = 2;
+        this.walkVelocity = 2;
         //this.cameraTarget = new THREE.Vector3();
     }
 
@@ -43,7 +43,6 @@ export class Controls {
     }
 
     update(delta, keysPressed) {
-        console.log(delta);
         const directionPressed = DIRECTIONS.some(key => keysPressed[key] === true);
 
         let play = '';
@@ -89,8 +88,8 @@ export class Controls {
             const velocity = this.currentAction === 'Run' ? this.runVelocity : this.walkVelocity;
 
             // move model & camera
-            const moveX = this.walkDirection.x * velocity * 0.3;
-            const moveZ = this.walkDirection.z * velocity * 0.3;
+            const moveX = this.walkDirection.x * velocity * delta;
+            const moveZ = this.walkDirection.z * velocity * delta;
             this.model.position.x += moveX;
             this.model.position.z += moveZ;
             this.updateCameraTarget(moveX, moveZ);
@@ -113,26 +112,26 @@ export class Controls {
     }
 
     directionOffset(keysPressed) {
-        let directionOffset = 0; // w
+        let directionOffset = 0; // z
 
-        if (keysPressed[W]) {
-            if (keysPressed[A]) {
-                directionOffset = Math.PI / 4; // w+a
+        if (keysPressed[Z]) {
+            if (keysPressed[Q]) {
+                directionOffset = -Math.PI / 4; // z+q
             } else if (keysPressed[D]) {
-                directionOffset = - Math.PI / 4; // w+d
+                directionOffset = Math.PI / 4; // z+d
             }
         } else if (keysPressed[S]) {
-            if (keysPressed[A]) {
-                directionOffset = Math.PI / 4 + Math.PI / 2; // s+a
+            if (keysPressed[Q]) {
+                directionOffset = -Math.PI / 4 + Math.PI / 2; // s+q
             } else if (keysPressed[D]) {
-                directionOffset = -Math.PI / 4 - Math.PI / 2; // s+d
+                directionOffset = Math.PI / 4 - Math.PI / 2; // s+d
             } else {
                 directionOffset = Math.PI; // s
             }
-        } else if (keysPressed[A]) {
-            directionOffset = Math.PI / 2; // a
+        } else if (keysPressed[Q]) {
+            directionOffset = -Math.PI / 2; // q
         } else if (keysPressed[D]) {
-            directionOffset = - Math.PI / 2; // d
+            directionOffset = Math.PI / 2; // d
         }
 
         return directionOffset;

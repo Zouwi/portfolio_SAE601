@@ -17,3 +17,26 @@ body
     left: 0;
     outline: none;
 }
+
+/* CONTROLS */
+.svgChange {
+    fill: #ff873e;
+}
+
+.controls {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    z-index: 10;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+#touchZ {
+    grid-column: 2;
+}
+
+#touchQ {
+    grid-column: 2/1;
+}

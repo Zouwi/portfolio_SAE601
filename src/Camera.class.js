@@ -24,8 +24,8 @@ class Camera {
             this.config.renderer.setSize(this.sizes.width, this.sizes.height)
             this.config.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
         })
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 5, 10);
+        this.camera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera.position.set(0, 50, -0);
         this.camera.lookAt(0, 0, 0);
     }
 
