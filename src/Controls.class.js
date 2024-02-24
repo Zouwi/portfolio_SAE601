@@ -6,6 +6,9 @@ import Camera from './Camera.class.js'
 
 export class Controls {
     constructor(model, mixer, animationsMap, orbitControl, camera, currentAction) {
+
+        this.isCameraActive = false;
+
         this.model = model;
         this.mixer = mixer;
         this.animationsMap = animationsMap;
@@ -19,7 +22,7 @@ export class Controls {
         this.camera = camera;
         this.cameraObject = this.camera.getCamera(); // Utilisez la méthode pour récupérer la caméra de l'instance de Camera
         this.cameraTarget = new THREE.Vector3();
-        this.updateCameraTarget(0, 0);
+        this.updateCameraTarget(-100, -100);
 
         // state
         this.toggleRun = true;
@@ -35,7 +38,6 @@ export class Controls {
         this.fadeDuration = 0.1;
         this.runVelocity = 2;
         this.walkVelocity = 2;
-        //this.cameraTarget = new THREE.Vector3();
     }
 
     switchRunToggle() {
@@ -76,7 +78,7 @@ export class Controls {
 
             // rotate model
             this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + directionOffset);
-            this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2);
+            this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.5);
 
             // calculate direction
             this.cameraObject.getWorldDirection(this.walkDirection);
@@ -102,6 +104,7 @@ export class Controls {
             // Move camera
             this.cameraObject.position.x += moveX;
             this.cameraObject.position.z += moveZ;
+            this.cameraObject.focus = 100;
 
             // Update camera target
             this.cameraTarget.x = this.model.position.x;

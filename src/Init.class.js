@@ -6,13 +6,14 @@ import Camera from './Camera.class.js';
 import Player from './Player.class.js';
 import KeyDisplay from './Character.class.js';
 import Controls from './Controls.class.js';
-import { CameraHelper } from 'three';
+import {CameraHelper} from 'three';
 
 class Init {
     constructor() {
         const config = new Config();
-        const camera = new Camera();
         let player; // Déclarez une variable player
+        let camera = new Camera(); // Supposons que vous avez une classe Camera pour la caméra du joueur
+        this.controls = null;
         let characterControls;
         // Créer une instance de Player
         player = new Player();
@@ -20,7 +21,7 @@ class Init {
         let scene3D;
         /** ENVIRONMENT **/
         config.JSONloader.load('./scene/sceneFINAL.json', function (gltf) {
-            console.log(gltf);
+                console.log(gltf);
                 scene3D = gltf;
                 scene3D.scale.set(1, 1, 1);
                 scene3D.position.y = 0;
@@ -48,6 +49,16 @@ class Init {
             config.scene.add(model);
         });
 
+        /**CAMERA DEPART **/
+        const fixedCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        fixedCamera.position.set(40, 40, 40); // Position de la caméra fixe
+        //fixedCamera.lookAt(0, 0, 0); // Faire en sorte que la caméra fixe regarde vers le centre de la scène
+
+        // Ajout de la caméra fixe à la scène
+        config.scene.add(fixedCamera);
+
+
+
         /** RENDERER**/
         config.renderer.shadowMap.enabled = true;
         config.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
@@ -63,12 +74,17 @@ class Init {
         orbitControls.maxDistance = 15;
         orbitControls.enablePan = false;
         orbitControls.maxPolarAngle = Math.PI / 2 - 0.05;
+        orbitControls.enabled = false;
         orbitControls.update();
 
-        // MODEL WITH ANIMATIONS
+
+        let mixer;
+        let model;
+        let animationsMap;
+        /** MODEL WITH ANIMATIONS **/
         // Load 3D model and create player and controls
         config.loader.load('./models/mareep_animated.glb', function (gltf) {
-            const model = gltf.scene;
+            model = gltf.scene;
             model.scale.set(0.5, 0.5, 0.5);
             model.position.y = 0.1;
             model.position.x = -18;
@@ -80,14 +96,14 @@ class Init {
             config.scene.add(model);
 
             const gltfAnimations = gltf.animations;
-            const mixer = new THREE.AnimationMixer(model);
-            const animationsMap = new Map();
+            mixer = new THREE.AnimationMixer(model);
+            animationsMap = new Map();
             gltfAnimations.filter(a => a.name !== 'Static Pose').forEach((a) => {
                 animationsMap.set(a.name, mixer.clipAction(a))
             });
 
             // Create Controls instance once the model is loaded
-            characterControls = new Controls(model, mixer, animationsMap, orbitControls, camera, 'Idle');
+            //characterControls = new Controls(model, mixer, animationsMap, orbitControls, camera, 'Idle');
         });
 
         // CONTROL KEYS
@@ -106,40 +122,19 @@ class Init {
             keysPressed[event.key.toLowerCase()] = false;
         }, false);
 
-        /*// Gérer les événements du clavier pour le déplacement du joueur
-        document.addEventListener('keydown', (event) => {
-            switch (event.key) {
-                case 'ArrowUp':
-                    player.moveForward();
-                    break;
-                case 'ArrowDown':
-                    player.moveBackward();
-                    break;
-                case 'ArrowLeft':
-                    player.moveLeft();
-                    break;
-                case 'ArrowRight':
-                    player.moveRight();
-                    break;
-                case ' ':
-                    player.jump();
-                    break;
-            }
-        });
+        /**BOUTON DEPART **/
+        // Gestionnaire d'événement pour le bouton "Démarrer"
+        document.querySelector(".btnStart").addEventListener('click', () => {
+            // Supprimer la caméra globale de la scène
+            config.scene.remove(fixedCamera);
 
-        // Gérer les événements du clavier pour arrêter le déplacement du joueur
-        document.addEventListener('keyup', (event) => {
-            switch (event.key) {
-                case 'ArrowUp':
-                case 'ArrowDown':
-                    player.stopMovingVertical();
-                    break;
-                case 'ArrowLeft':
-                case 'ArrowRight':
-                    player.stopMovingHorizontal();
-                    break;
-            }
-        });*/
+            // Supprimer le bouton "Démarrer"
+            orbitControls.enabled = true;
+            document.querySelector(".start").remove();
+
+            // Créer l'instance de Controls avec la caméra du joueur
+            this.controls = new Controls(model, mixer, animationsMap, orbitControls, camera, 'Idle');
+        });
 
         /**
          * Animate
@@ -155,8 +150,8 @@ class Init {
 
             let mixerUpdateDelta = clockDelta.getDelta();
 
-            if (characterControls) {
-                characterControls.update(mixerUpdateDelta, keysPressed);
+            if (this.controls) {
+                this.controls.update(mixerUpdateDelta, keysPressed);
             }
             orbitControls.update()
 
@@ -166,7 +161,6 @@ class Init {
 
             // Update player
             //player.update();
-
 
 
             // Call tick again on the next frame

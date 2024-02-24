@@ -1,3 +1,9 @@
+/* FONTS */
+@font-face {
+    font-family: "Antraste";
+    src: url("./static/fonts/Antraste_ver2.ttf");
+}
+
 *
 {
     margin: 0;
@@ -39,4 +45,60 @@ body
 
 #touchQ {
     grid-column: 2/1;
+}
+
+/* Bouton START*/
+.start {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.75);
+    display: grid;
+    grid-template-columns: 1fr;
+    position: fixed;
+    z-index: 12;
+}
+
+.title {
+    margin: auto;
+    font-size: 60pt;
+    color: #ea7443;
+    font-family: Antraste;
+}
+
+.subTitle {
+    margin: auto;
+    font-size: 30pt;
+    color: #57260c;
+    font-family: Antraste;
+}
+
+.texteStart {
+    margin: auto;
+}
+.texteStart>* {
+    margin: 10px 0px 10px 0px;
+}
+
+.btnStart {
+    margin: auto;
+    background: #ea7443;
+    padding: 10px 20px;
+    width: fit-content;
+    font-family: "Rethink Sans", sans-serif;
+    font-size: 20pt;
+    color: white;
+    border-radius: 50px;
+    cursor: pointer;
+}
+.btnStart:hover {
+    background: #57260c;
+    box-shadow: 5px 5px 0px #ea7443;
+}
+
+.subTexte {
+    font-family: "Rethink Sans", sans-serif;
+    font-size: 15pt;
+    width: 600px;
+    text-align: justify;
+    color: #57260c;
 }
