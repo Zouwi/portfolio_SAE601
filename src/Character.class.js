@@ -1,71 +1,172 @@
-import * as THREE from 'three';
-import Config from './Config.class.js';
+import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { Q, D, DIRECTIONS, S, Z } from './Controls.class.js'
+import Camera from './Camera.class.js'
+import Ammo from "ammo.js";
+import physicsUniverse from "./Physics.class.js";
 
-export const Z = 'z'
-export const Q = 'q'
-export const S = 's'
-export const D = 'd'
-export const SHIFT = 'shift'
-export const DIRECTIONS = [Z, Q, S, D]
-class Character {
-    constructor() {
-        this.map = new Map();
-
-        const z = document.querySelector(".svgZ");
-        const q = document.querySelector(".svgQ");
-        const s = document.querySelector(".svgS");
-        const d = document.querySelector(".svgD");
-        const shift = document.createElement("div");
-
-        this.map.set(Z, z);
-        this.map.set(Q, q);
-        this.map.set(S, s);
-        this.map.set(D, d);
-        this.map.set(SHIFT, shift);
-
-
-
-        this.map.forEach((v, k) => {
-            //v.appendChild(document.querySelector(".svgZ"));
-            /*v.style.color = 'blue';
-            v.style.fontSize = '50px';
-            v.style.fontWeight = '800';
-            v.style.position = 'absolute';
-            v.textContent = k;*/
+export class Character {
+    constructor(model, mixer, animationsMap, orbitControl, camera, currentAction) {
+        //this.physicsUniverse = new physicsUniverse;
+        //this.createPhysicalBody();
+        this.model = model;
+        this.mixer = mixer;
+        this.animationsMap = animationsMap;
+        this.currentAction = currentAction;
+        this.animationsMap.forEach((value, key) => {
+            if (key === currentAction) {
+                value.play();
+            }
         });
+        this.orbitControl = orbitControl;
+        this.camera = camera;
+        this.cameraObject = this.camera.getCamera(); // Utilisez la méthode pour récupérer la caméra de l'instance de Camera
+        this.cameraTarget = new THREE.Vector3();
+        this.updateCameraTarget(-100, -100);
 
-        this.updatePosition();
+        // state
+        this.toggleRun = true;
 
-        this.map.forEach((v, _) => {
-            document.body.append(v);
-        });
+        // temporary data
+        this.walkDirection = new THREE.Vector3();
+        this.rotateAngle = new THREE.Vector3(0, 1, 0);
+        this.rotateQuarternion = new THREE.Quaternion();
+
+        // constants
+        this.fadeDuration = 0.1;
+        this.runVelocity = 1;
+        this.walkVelocity = 1;
     }
 
-    updatePosition() {
-        //this.map.get(Z).style.top = `${window.innerHeight - 150}px`
-        //this.map.get(Q).style.top = `${window.innerHeight - 100}px`
-        //this.map.get(S).style.top = `${window.innerHeight - 100}px`
-        //this.map.get(D).style.top = `${window.innerHeight - 100}px`
-        this.map.get(SHIFT).style.top = `${window.innerHeight - 100}px`
-
-        //this.map.get(Z).style.left = `${200}px`
-        //this.map.get(Q).style.left = `${200}px`
-        //this.map.get(S).style.left = `${300}px`
-        //this.map.get(D).style.left = `${400}px`
-        this.map.get(SHIFT).style.left = `${50}px`
+    switchRunToggle() {
+        this.toggleRun = !this.toggleRun;
     }
 
-    down (key) {
-        if (key) {
-            document.querySelector("#touch"+key.toUpperCase()+">*").classList.add("svgChange");
+    update(delta, keysPressed) {
+        const directionPressed = DIRECTIONS.some(key => keysPressed[key] === true);
+
+        let play = '';
+        if (directionPressed && this.toggleRun) {
+            play = 'WalkClean';
+        } else if (directionPressed) {
+            play = 'WalkClean';
+        } else {
+            play = 'Idle';
+        }
+
+        if (this.currentAction !== play) {
+            const toPlay = this.animationsMap.get(play);
+            const current = this.animationsMap.get(this.currentAction);
+
+            current.fadeOut(this.fadeDuration);
+            toPlay.reset().fadeIn(this.fadeDuration).play();
+
+            this.currentAction = play;
+        }
+
+        this.mixer.update(delta);
+
+        if (this.currentAction === 'WalkClean' || this.currentAction === 'WalkClean') {
+            // calculate towards camera direction
+            let angleYCameraDirection = Math.atan2(
+                (this.cameraObject.position.x - this.model.position.x),
+                (this.cameraObject.position.z - this.model.position.z));
+            // diagonal movement angle offset
+            let directionOffset = this.directionOffset(keysPressed);
+
+            // rotate model
+            this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + directionOffset);
+            this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.5);
+
+            // calculate direction
+            this.cameraObject.getWorldDirection(this.walkDirection);
+            this.walkDirection.y = 0;
+            this.walkDirection.normalize();
+            this.walkDirection.applyAxisAngle(this.rotateAngle, directionOffset);
+
+            // run/walk velocity
+            const velocity = this.currentAction === 'Run' ? this.runVelocity : this.walkVelocity;
+
+            // move model & camera
+            const moveX = this.walkDirection.x * velocity * delta;
+            const moveZ = this.walkDirection.z * velocity * delta;
+            this.model.position.x += moveX;
+            this.model.position.z += moveZ;
+            this.updateCameraTarget(moveX, moveZ);
         }
     }
 
-    up (key) {
-        if (key) {
-            document.querySelector("#touch"+key.toUpperCase()+">*").classList.remove("svgChange");
+    updateCameraTarget(moveX, moveZ) {
+        console.log(this.walkDirection);
+        if (this.cameraObject) {
+            // Move camera
+            this.cameraObject.position.x += moveX;
+            this.cameraObject.position.z += moveZ;
+            this.cameraObject.focus = 100;
+
+            // Update camera target
+            this.cameraTarget.x = this.model.position.x;
+            this.cameraTarget.y = this.model.position.y + 1;
+            this.cameraTarget.z = this.model.position.z;
+            this.orbitControl.target = this.cameraTarget;
         }
     }
+
+    directionOffset(keysPressed) {
+        let directionOffset = 0; // z
+
+        if (keysPressed[Z]) {
+            if (keysPressed[Q]) {
+                directionOffset = -Math.PI / 4; // z+q
+            } else if (keysPressed[D]) {
+                directionOffset = Math.PI / 4; // z+d
+            }
+        } else if (keysPressed[S]) {
+            if (keysPressed[Q]) {
+                directionOffset = -Math.PI / 4 + Math.PI / 2; // s+q
+            } else if (keysPressed[D]) {
+                directionOffset = Math.PI / 4 - Math.PI / 2; // s+d
+            } else {
+                directionOffset = Math.PI; // s
+            }
+        } else if (keysPressed[Q]) {
+            directionOffset = -Math.PI / 2; // q
+        } else if (keysPressed[D]) {
+            directionOffset = Math.PI / 2; // d
+        }
+
+        return directionOffset;
+    }
+
+    /*createPhysicalBody() {
+        // Créez le corps physique pour votre personnage, en utilisant Ammo.js
+        // Assurez-vous de définir la forme du corps physique, la masse, et la position initiale
+        // Par exemple :
+        const mass = 1; // Masse du personnage
+        const scale = 1; // Echelle du personnage
+        const position = { x: 0, y: 0, z: 0 }; // Position initiale du personnage
+
+        // Création du corps physique Ammo.js
+        const transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+        const motionState = new Ammo.btDefaultMotionState(transform);
+        const colShape = new Ammo.btBoxShape(new Ammo.btVector3(scale / 2, scale / 2, scale / 2));
+        const localInertia = new Ammo.btVector3(0, 0, 0);
+        colShape.calculateLocalInertia(mass, localInertia);
+        const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, colShape, localInertia);
+        this.physicsBody = new Ammo.btRigidBody(rbInfo);
+
+        // Ajout du corps physique à l'univers physique
+        this.physicsUniverse.addRigidBody(this.physicsBody);
+    }
+
+    updatePhysics() {
+        // Mettez à jour la position du corps physique en fonction de la position du personnage dans la scène 3D
+        const position = this.model.position;
+        const transform = this.physicsBody.getMotionState().getWorldTransform();
+        transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+    }*/
 }
 
 export default Character;

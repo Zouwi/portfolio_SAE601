@@ -1,39 +1,35 @@
-import * as THREE from 'three'
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
-import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js";
+import * as THREE from 'three';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import Config from './Config.class.js';
 import Camera from './Camera.class.js';
-import Player from './Player.class.js';
-import KeyDisplay from './Character.class.js';
-import Controls from './Controls.class.js';
+import KeyDisplay from './Controls.class.js';
+import Character from './Character.class.js';
+import { Project, Scene3D, PhysicsLoader } from 'enable3d'
 import {CameraHelper} from 'three';
+import Ammo from "ammo.js";
+import physicsUniverse from "./Physics.class.js";
 
 class Init {
     constructor() {
         const config = new Config();
-        let player; // Déclarez une variable player
-        let camera = new Camera(); // Supposons que vous avez une classe Camera pour la caméra du joueur
-        this.controls = null;
-        let characterControls;
-        // Créer une instance de Player
-        player = new Player();
+        let camera = new Camera();
 
-        let scene3D;
+        const physics = new physicsUniverse();
+
+        this.controls= null;
+
         /** ENVIRONMENT **/
+        let scene3D;
         config.JSONloader.load('./scene/sceneFINAL.json', function (gltf) {
-                console.log(gltf);
-                scene3D = gltf;
-                scene3D.scale.set(1, 1, 1);
-                scene3D.position.y = 0;
-                scene3D.position.x = 0;
-                scene3D.position.z = 0;
-                config.scene.add(scene3D);
+            console.log(gltf);
+            scene3D = gltf;
+            scene3D.scale.set(1, 1, 1);
+            scene3D.position.y = 0;
+            scene3D.position.x = 0;
+            scene3D.position.z = 0;
+            //config.scene.add(scene3D);
 
-                config.renderer.render(config.scene, camera.camera);
-            },
-            undefined, function (error) {
-                console.error(error);
-            });
+        });
 
         /**BACKGROUND **/
         config.loader.load('./scene/skybox_autumn_forest.glb', function (gltf) {
@@ -57,17 +53,14 @@ class Init {
         // Ajout de la caméra fixe à la scène
         config.scene.add(fixedCamera);
 
-
-
         /** RENDERER**/
         config.renderer.shadowMap.enabled = true;
         config.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
         config.renderer.setSize(camera.sizes.width, camera.sizes.height)
         config.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-        // CONTROLS
+        /** CONTROLS **/
         // Create OrbitControls
-        // Créer une instance de Camera en passant la référence du joueur
         const orbitControls = new OrbitControls(camera.camera, config.renderer.domElement);
         orbitControls.enableDamping = true;
         orbitControls.minDistance = 5;
@@ -77,16 +70,15 @@ class Init {
         orbitControls.enabled = false;
         orbitControls.update();
 
-
+        /** MODEL WITH ANIMATIONS **/
         let mixer;
         let model;
         let animationsMap;
-        /** MODEL WITH ANIMATIONS **/
         // Load 3D model and create player and controls
-        config.loader.load('./models/mareep_animated.glb', function (gltf) {
+        config.loader.load('./models/somali_cat.glb', function (gltf) {
             model = gltf.scene;
-            model.scale.set(0.5, 0.5, 0.5);
-            model.position.y = 0.1;
+            model.scale.set(0.3, 0.3, 0.3);
+            model.position.y = 0.56;
             model.position.x = -18;
             model.position.z = -17;
             model.traverse(function (object) {
@@ -106,22 +98,6 @@ class Init {
             //characterControls = new Controls(model, mixer, animationsMap, orbitControls, camera, 'Idle');
         });
 
-        // CONTROL KEYS
-        const keysPressed = {};
-        const keyDisplayQueue = new KeyDisplay();
-        document.addEventListener('keydown', (event) => {
-            keyDisplayQueue.down(event.key);
-            if (event.shiftKey && characterControls) {
-                characterControls.switchRunToggle();
-            } else {
-                keysPressed[event.key.toLowerCase()] = true;
-            }
-        }, false);
-        document.addEventListener('keyup', (event) => {
-            keyDisplayQueue.up(event.key);
-            keysPressed[event.key.toLowerCase()] = false;
-        }, false);
-
         /**BOUTON DEPART **/
         // Gestionnaire d'événement pour le bouton "Démarrer"
         document.querySelector(".btnStart").addEventListener('click', () => {
@@ -133,14 +109,41 @@ class Init {
             document.querySelector(".start").remove();
 
             // Créer l'instance de Controls avec la caméra du joueur
-            this.controls = new Controls(model, mixer, animationsMap, orbitControls, camera, 'Idle');
+            this.controls = new Character(model, mixer, animationsMap, orbitControls, camera, 'Idle');
         });
 
-        /**
-         * Animate
-         */
+        /** CONTROL KEYS **/
+        const keysPressed = {};
+        const keyDisplayQueue = new KeyDisplay();
+        document.addEventListener('keydown', (event) => {
+            keyDisplayQueue.down(event.key);
+            if (event.shiftKey && Character) {
+                Character.switchRunToggle();
+            } else {
+                keysPressed[event.key.toLowerCase()] = true;
+            }
+        }, false);
+        document.addEventListener('keyup', (event) => {
+            keyDisplayQueue.up(event.key);
+            keysPressed[event.key.toLowerCase()] = false;
+        }, false);
+
+        /** CUBE COLLISION **/
+        physics.createCube(40 , new THREE.Vector3(15, -30, 15) , 0 );
+        physics.createCube(40 , new THREE.Vector3(0, 0, 0) , 1, null );
+        physics.createCube(20 , new THREE.Vector3(0, 0, 0) , 1, null );
+        physics.createCube(40 , new THREE.Vector3(0, 0, 0) , 1, null );
+        physics.createCube(60 , new THREE.Vector3(5, 0, 0) , 1, null );
+        physics.createCube(80 , new THREE.Vector3(25, 100, 5) , 1, null );
+        physics.createCube(80 , new THREE.Vector3(20, 60, 25) , 2, null );
+        physics.createCube(40 , new THREE.Vector3(20, 100, 25) , 1, null );
+        physics.createCube(20 , new THREE.Vector3(20, 200, 25) , 1, null );
+
+
+        /** Animate **/
         const clockElapse = new THREE.Clock();
         const clockDelta = new THREE.Clock();
+        const clockCollision = new THREE.Clock();
 
         const tick = () => {
             // Render
@@ -152,16 +155,23 @@ class Init {
 
             if (this.controls) {
                 this.controls.update(mixerUpdateDelta, keysPressed);
+                //this.controls.updatePhysics(); // Appeler updatePhysics sur l'instance de Character
+            }
+
+            if (this.controls) {
+                this.controls.update(mixerUpdateDelta, keysPressed);
             }
             orbitControls.update()
 
+            physics.updatePhysicsUniverse( clockCollision.getDelta() );
+
+            //Character.updatePhysics();
+
+            // Vérifier les collisions à chaque frame
+            //checkCollisions();
 
             // Update camera
             //camera.update();
-
-            // Update player
-            //player.update();
-
 
             // Call tick again on the next frame
             window.requestAnimationFrame(tick)
