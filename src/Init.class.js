@@ -6,14 +6,14 @@ import KeyDisplay from './Controls.class.js';
 import Character from './Character.class.js';
 import { Project, Scene3D, PhysicsLoader } from 'enable3d'
 import {CameraHelper} from 'three';
-import physicsUniverse from './Physics.class.js';
+//import physicsUniverse from './Physics.class.js';
 
 class Init {
     constructor() {
         const config = new Config();
         let camera = new Camera();
 
-        const physics = new physicsUniverse();
+        //const physics = new physicsUniverse();
 
         this.controls= null;
 
@@ -41,7 +41,7 @@ class Init {
                 if (object.isMesh) object.castShadow = true;
                 if (object.isMesh) object.receiveShadow = true;
             });
-            config.scene.add(model);
+            //config.scene.add(model);
         });
 
         /**CAMERA DEPART **/
@@ -127,18 +127,6 @@ class Init {
             keysPressed[event.key.toLowerCase()] = false;
         }, false);
 
-        /** CUBE COLLISION **/
-        physics.createCube(40 , new THREE.Vector3(15, -30, 15) , 0 );
-        physics.createCube(40 , new THREE.Vector3(0, 0, 0) , 1, null );
-        physics.createCube(20 , new THREE.Vector3(0, 0, 0) , 1, null );
-        physics.createCube(40 , new THREE.Vector3(0, 0, 0) , 1, null );
-        physics.createCube(60 , new THREE.Vector3(5, 0, 0) , 1, null );
-        physics.createCube(80 , new THREE.Vector3(25, 100, 5) , 1, null );
-        physics.createCube(80 , new THREE.Vector3(20, 60, 25) , 2, null );
-        physics.createCube(40 , new THREE.Vector3(20, 100, 25) , 1, null );
-        physics.createCube(20 , new THREE.Vector3(20, 200, 25) , 1, null );
-
-
         /** Animate **/
         const clockElapse = new THREE.Clock();
         const clockDelta = new THREE.Clock();
@@ -161,8 +149,6 @@ class Init {
                 this.controls.update(mixerUpdateDelta, keysPressed);
             }
             orbitControls.update()
-
-            physics.updatePhysicsUniverse( clockCollision.getDelta() );
 
             //Character.updatePhysics();
 
