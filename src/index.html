@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
-    <script type="module" src="./ammo.js"></script>
+
     <script type="module">
         import * as THREE from 'three';
         import Config from './Config.class.js';
@@ -17,10 +17,10 @@
 
         //VARIABLES GLOBALES
         let tmpTransformation = undefined;
-        let clock = undefined;
+        let clock = new THREE.Clock();
         // Three.js
         let scene            = undefined ;
-        let camera            = undefined ;
+        let camera = new Camera();
         let renderer             = undefined ;
         let config = new Config();
 
@@ -29,8 +29,11 @@
         function AmmoStart(Ammo)
         {
             tmpTransformation = new Ammo.btTransform();
-            initPhysicsUniverse(Ammo);
-            //initGraphicsUniverse();
+            let physicsUniverse = undefined;
+            let rigidBody_List = new Array();
+
+            initPhysicsUniverse();
+            initGraphicsUniverse();
             // base
             createCube(40 , new THREE.Vector3(0, 0, 0) , 0 );
             // falling cubes
@@ -43,113 +46,114 @@
             createCube(4 , new THREE.Vector3(20, 100, 25) , 1, null );
             createCube(2 , new THREE.Vector3(20, 200, 25) , 1, null );
             render();
-        }
 
-        // Ammo.js
-        let physicsUniverse = undefined;
-
-        // ------ Physics World setup ------
-        function initPhysicsUniverse(Ammo)
-        {
-            let collisionConfiguration  = new Ammo.btDefaultCollisionConfiguration();
-            let dispatcher              = new Ammo.btCollisionDispatcher(collisionConfiguration);
-            let overlappingPairCache    = new Ammo.btDbvtBroadphase();
-            let solver                  = new Ammo.btSequentialImpulseConstraintSolver();
-            physicsUniverse               = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-            physicsUniverse.setGravity(new Ammo.btVector3(0, -75, 0));
-        }
-
-        // ------ Three.js setup ------
-        /*function initGraphicsUniverse()
-        {
-            clock = new THREE.Clock();
-            scene = new THREE.Scene();
-
-            camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
-            camera.position.set( -25, 20, -25 );
-            camera.lookAt(new THREE.Vector3(0, 6, 0));
-
-            //renderer
-            renderer = new THREE.WebGLRenderer({antialias : true, alpha : true});
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement) ;
-
-            //light
-            let ambientLight = new THREE.AmbientLight(0xcccccc, 0.2);
-            scene.add(ambientLight);
-            let directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-            directionalLight.position.set(-1, 0.9, 0.4);
-            scene.add(directionalLight);
-        }*/
-
-        let rigidBody_List = new Array();
-
-        function createCube(scale, position, mass, rot_quaternion, Ammo)
-        {
-            let quaternion = undefined;
-            if(rot_quaternion == null)
+            // ------ Physics World setup ------
+            function initPhysicsUniverse()
             {
-                quaternion = {x: 0, y: 0, z: 0, w:  1};
+                let collisionConfiguration  = new Ammo.btDefaultCollisionConfiguration();
+                let dispatcher              = new Ammo.btCollisionDispatcher(collisionConfiguration);
+                let overlappingPairCache    = new Ammo.btDbvtBroadphase();
+                let solver                  = new Ammo.btSequentialImpulseConstraintSolver();
+                physicsUniverse               = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+                physicsUniverse.setGravity(new Ammo.btVector3(0, -75, 0));
             }
-            else
+
+            // ------ Three.js setup ------
+            function initGraphicsUniverse()
             {
-                quaternion = rot_quaternion;
+                clock = new THREE.Clock();
+                //scene = new THREE.Scene();
+
+                //camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
+                //camera.position.set( -25, 20, -25 );
+                //camera.lookAt(new THREE.Vector3(0, 6, 0));
+
+                //renderer
+                renderer = new THREE.WebGLRenderer({antialias : true, alpha : true});
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement) ;
+
+                //light
+                let ambientLight = new THREE.AmbientLight(0xcccccc, 0.2);
+                config.scene.add(ambientLight);
+                let directionalLight = new THREE.DirectionalLight(0xffffff, 10.6);
+                directionalLight.position.set(-1, 0.9, 0.4);
+                config.scene.add(directionalLight);
+                console.log(directionalLight);
             }
-            // ------ Graphics Universe - Three.JS ------
-            let cube = new THREE.BoxGeometry(scale, scale, scale);
-            let material = new THREE.MeshPhongMaterial({ color: Math.random() * 0xffffff });
-            let newCube = new THREE.Mesh(cube, material);
-            newCube.position.set(position.x, position.y, position.z);
-            config.scene.add(newCube);
 
-            // ------ Physics Universe - Ammo.js ------
-            let transform = new Ammo.btTransform();
-            transform.setIdentity();
-            transform.setOrigin( new Ammo.btVector3( position.x, position.y, position.z ) );
-            transform.setRotation( new Ammo.btQuaternion( quaternion.x, quaternion.y, quaternion.z, quaternion.w ) );
-            let defaultMotionState = new Ammo.btDefaultMotionState( transform );
-            let structColShape = new Ammo.btBoxShape( new Ammo.btVector3( scale*0.5, scale*0.5, scale*0.5 ) );
-            structColShape.setMargin( 0.05 );
-            let localInertia = new Ammo.btVector3( 0, 0, 0 );
-            structColShape.calculateLocalInertia( mass, localInertia );
-            let RBody_Info = new Ammo.btRigidBodyConstructionInfo( mass, defaultMotionState, structColShape, localInertia );
-            let RBody = new Ammo.btRigidBody( RBody_Info );
 
-            physicsUniverse.addRigidBody( RBody );
-            newCube.userData.physicsBody = RBody;
-            rigidBody_List.push(newCube);
-        }
 
-        function updatePhysicsUniverse( deltaTime )
-        {
-            physicsUniverse.stepSimulation( deltaTime, 10 );
-
-            for ( let i = 0; i < rigidBody_List.length; i++ )
+            function createCube(scale, position, mass, rot_quaternion)
             {
-                let Graphics_Obj = rigidBody_List[ i ];
-                let Physics_Obj = Graphics_Obj.userData.physicsBody;
-
-                let motionState = Physics_Obj.getMotionState();
-                if ( motionState )
+                let quaternion = undefined;
+                if(rot_quaternion == null)
                 {
-                    motionState.getWorldTransform( tmpTransformation );
-                    let new_pos = tmpTransformation.getOrigin();
-                    let new_qua = tmpTransformation.getRotation();
-                    Graphics_Obj.position.set( new_pos.x(), new_pos.y(), new_pos.z() );
-                    Graphics_Obj.quaternion.set( new_qua.x(), new_qua.y(), new_qua.z(), new_qua.w() );
+                    quaternion = {x: 0, y: 0, z: 0, w:  1};
+                }
+                else
+                {
+                    quaternion = rot_quaternion;
+                }
+                // ------ Graphics Universe - Three.JS ------
+                let cube = new THREE.BoxGeometry(scale, scale, scale);
+                let material = new THREE.MeshPhongMaterial({ color: Math.random() * 0xffffff });
+                let newCube = new THREE.Mesh(cube, material);
+                newCube.position.set(position.x, position.y, position.z);
+                config.scene.add(newCube);
+
+                // ------ Physics Universe - Ammo.js ------
+                let transform = new Ammo.btTransform();
+                transform.setIdentity();
+                transform.setOrigin( new Ammo.btVector3( position.x, position.y, position.z ) );
+                transform.setRotation( new Ammo.btQuaternion( quaternion.x, quaternion.y, quaternion.z, quaternion.w ) );
+                let defaultMotionState = new Ammo.btDefaultMotionState( transform );
+                let structColShape = new Ammo.btBoxShape( new Ammo.btVector3( scale*0.5, scale*0.5, scale*0.5 ) );
+                structColShape.setMargin( 0.05 );
+                let localInertia = new Ammo.btVector3( 0, 0, 0 );
+                structColShape.calculateLocalInertia( mass, localInertia );
+                let RBody_Info = new Ammo.btRigidBodyConstructionInfo( mass, defaultMotionState, structColShape, localInertia );
+                let RBody = new Ammo.btRigidBody( RBody_Info );
+
+                physicsUniverse.addRigidBody( RBody );
+                newCube.userData.physicsBody = RBody;
+                rigidBody_List.push(newCube);
+            }
+
+            function updatePhysicsUniverse( deltaTime )
+            {
+                physicsUniverse.stepSimulation( deltaTime, 10 );
+
+                for ( let i = 0; i < rigidBody_List.length; i++ )
+                {
+                    let Graphics_Obj = rigidBody_List[ i ];
+                    let Physics_Obj = Graphics_Obj.userData.physicsBody;
+
+                    let motionState = Physics_Obj.getMotionState();
+                    if ( motionState )
+                    {
+                        motionState.getWorldTransform( tmpTransformation );
+                        let new_pos = tmpTransformation.getOrigin();
+                        let new_qua = tmpTransformation.getRotation();
+                        Graphics_Obj.position.set( new_pos.x(), new_pos.y(), new_pos.z() );
+                        Graphics_Obj.quaternion.set( new_qua.x(), new_qua.y(), new_qua.z(), new_qua.w() );
+                    }
                 }
             }
+
+            function render()
+            {
+                let deltaTime = clock.getDelta();
+                updatePhysicsUniverse( deltaTime );
+
+                renderer.render( config.scene, camera.camera );
+                requestAnimationFrame( render );
+            }
+
         }
 
-        function render()
-        {
-            let deltaTime = clock.getDelta();
-            updatePhysicsUniverse( deltaTime );
 
-            config.renderer.render( config.scene, camera.camera );
-            requestAnimationFrame( render );
-        }
     </script>
 </head>
 <body>

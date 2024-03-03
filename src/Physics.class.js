@@ -1,54 +1,79 @@
-/*
-import * as THREE from 'three';
 import Config from './Config.class.js';
 import Camera from './Camera.class.js';
 import Ammo from './ammo.js';
 
-    class Physics {
-        constructor() {
-            this.config = new Config();
-            this.camera = new Camera();
-            this.renderer = new Config();
-            this.tmpTransformation = undefined;
-            this.physicsUniverse = undefined;
-            this.clock = new THREE.Clock();
+class Physics {
+    constructor() {
+        //VARIABLES GLOBALES
+        this.tmpTransformation = undefined;
+        this.clock = new THREE.Clock();
+        // Three.js
+        this.camera = new Camera();
+        this.config = new Config();
 
-            this.rigidBody_List = [];
+        // ------ Ammo.js Init ------
+        Ammo().then( this.AmmoStart );
+    }
 
-            // ------ Ammo.js Init ------
-            Ammo().then( this.AmmoStart );
-        }
+    AmmoStart(Ammo)
+    {
+        this.tmpTransformation = new Ammo.btTransform();
+        this.physicsUniverse = undefined;
+        this.rigidBody_List = new Array();
 
-        AmmoStart()
+        initPhysicsUniverse();
+        //initGraphicsUniverse();
+        // base
+        createCube(40 , new THREE.Vector3(0, 0, 0) , 0 );
+        // falling cubes
+        createCube(4 , new THREE.Vector3(0, 10, 0) , 1, null );
+        createCube(2 , new THREE.Vector3(10, 30, 0) , 1, null );
+        createCube(4 , new THREE.Vector3(10, 20, 10) , 1, null );
+        createCube(6 , new THREE.Vector3(5, 40, 20) , 1, null );
+        createCube(8 , new THREE.Vector3(25, 100, 5) , 1, null );
+        createCube(8 , new THREE.Vector3(20, 60, 25) , 1, null );
+        createCube(4 , new THREE.Vector3(20, 100, 25) , 1, null );
+        createCube(2 , new THREE.Vector3(20, 200, 25) , 1, null );
+        //render();
+
+        // ------ Physics World setup ------
+        function initPhysicsUniverse()
         {
-            this.tmpTransformation = new Ammo.btTransform();
-            this.initPhysicsUniverse();
-            //initGraphicsUniverse();
-            // base
-            this.createCube(40 , new THREE.Vector3(10, -30, 10) , 0 );
-            // falling cubes
-            this.createCube(4 , new THREE.Vector3(0, 10, 0) , 1, null );
-            this.createCube(2 , new THREE.Vector3(10, 30, 0) , 1, null );
-            this.createCube(4 , new THREE.Vector3(10, 20, 10) , 1, null );
-            this.createCube(6 , new THREE.Vector3(5, 40, 20) , 1, null );
-            this.createCube(8 , new THREE.Vector3(25, 100, 5) , 1, null );
-            this.createCube(8 , new THREE.Vector3(20, 60, 25) , 1, null );
-            this.createCube(4 , new THREE.Vector3(20, 100, 25) , 1, null );
-            this.createCube(2 , new THREE.Vector3(20, 200, 25) , 1, null );
-            this.render();
-        }
-
-        initPhysicsUniverse()
-        {
-            let collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
-            let dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
-            let overlappingPairCache = new Ammo.btDbvtBroadphase();
-            let solver = new Ammo.btSequentialImpulseConstraintSolver();
-            this.physicsUniverse = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+            let collisionConfiguration  = new Ammo.btDefaultCollisionConfiguration();
+            let dispatcher              = new Ammo.btCollisionDispatcher(collisionConfiguration);
+            let overlappingPairCache    = new Ammo.btDbvtBroadphase();
+            let solver                  = new Ammo.btSequentialImpulseConstraintSolver();
+            this.physicsUniverse               = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
             this.physicsUniverse.setGravity(new Ammo.btVector3(0, -75, 0));
         }
 
-        createCube(scale, position, mass, rot_quaternion)
+        // ------ Three.js setup ------
+        /*function initGraphicsUniverse()
+        {
+            clock = new THREE.Clock();
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
+            camera.position.set( -25, 20, -25 );
+            camera.lookAt(new THREE.Vector3(0, 6, 0));
+
+            //renderer
+            renderer = new THREE.WebGLRenderer({antialias : true, alpha : true});
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement) ;
+
+            //light
+            let ambientLight = new THREE.AmbientLight(0xcccccc, 0.2);
+            scene.add(ambientLight);
+            let directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            directionalLight.position.set(-1, 0.9, 0.4);
+            scene.add(directionalLight);
+        }*/
+
+
+
+        function createCube(scale, position, mass, rot_quaternion)
         {
             let quaternion = undefined;
             if(rot_quaternion == null)
@@ -84,31 +109,38 @@ import Ammo from './ammo.js';
             this.rigidBody_List.push(newCube);
         }
 
-        updatePhysicsUniverse(deltaTime) {
-            this.physicsUniverse.stepSimulation(deltaTime, 10);
+        function updatePhysicsUniverse( deltaTime )
+        {
+            this.physicsUniverse.stepSimulation( deltaTime, 10 );
 
-            for (let i = 0; i < this.rigidBody_List.length; i++) {
-                let Graphics_Obj = this.rigidBody_List[i];
+            for ( let i = 0; i < this.rigidBody_List.length; i++ )
+            {
+                let Graphics_Obj = this.rigidBody_List[ i ];
                 let Physics_Obj = Graphics_Obj.userData.physicsBody;
 
                 let motionState = Physics_Obj.getMotionState();
-                if (motionState) {
-                    motionState.getWorldTransform(this.tmpTransformation);
+                if ( motionState )
+                {
+                    motionState.getWorldTransform( this.tmpTransformation );
                     let new_pos = this.tmpTransformation.getOrigin();
                     let new_qua = this.tmpTransformation.getRotation();
-                    Graphics_Obj.position.set(new_pos.x(), new_pos.y(), new_pos.z());
-                    Graphics_Obj.quaternion.set(new_qua.x(), new_qua.y(), new_qua.z(), new_qua.w());
+                    Graphics_Obj.position.set( new_pos.x(), new_pos.y(), new_pos.z() );
+                    Graphics_Obj.quaternion.set( new_qua.x(), new_qua.y(), new_qua.z(), new_qua.w() );
                 }
             }
         }
 
-        render()
+        /*function render()
         {
             let deltaTime = this.clock.getDelta();
-            this.updatePhysicsUniverse( deltaTime );
+            updatePhysicsUniverse( deltaTime );
 
-            this.renderer.renderer.render( this.config.scene, this.camera.camera );
-            requestAnimationFrame( this.render );
-        }
+            this.config.renderer.render( this.config.scene, this.camera.camera );
+            requestAnimationFrame( render );
+        }*/
+
     }
-export default Physics;*/
+
+}
+
+export default Physics;

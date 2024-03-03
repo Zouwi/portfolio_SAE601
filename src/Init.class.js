@@ -13,7 +13,7 @@ class Init {
         const config = new Config();
         let camera = new Camera();
 
-        //const physics = new physicsUniverse();
+        //this.physics = new physicsUniverse();
 
         this.controls= null;
 
@@ -149,6 +149,9 @@ class Init {
                 this.controls.update(mixerUpdateDelta, keysPressed);
             }
             orbitControls.update()
+
+            // Update physics
+            //this.physics.updatePhysicsUniverse(clockCollision.getDelta());
 
             //Character.updatePhysics();
 
