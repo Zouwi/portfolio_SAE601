@@ -41,7 +41,7 @@ class Init {
                 if (object.isMesh) object.castShadow = true;
                 if (object.isMesh) object.receiveShadow = true;
             });
-            //config.scene.add(model);
+            config.scene.add(model);
         });
 
         /**CAMERA DEPART **/
