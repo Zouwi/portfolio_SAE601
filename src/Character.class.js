@@ -2,8 +2,6 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Q, D, DIRECTIONS, S, Z } from './Controls.class.js'
 import Camera from './Camera.class.js'
-import Ammo from "ammo.js";
-import physicsUniverse from "./Physics.class.js";
 
 export class Character {
     constructor(model, mixer, animationsMap, orbitControl, camera, currentAction) {

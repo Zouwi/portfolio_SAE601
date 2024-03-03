@@ -6,8 +6,7 @@ import KeyDisplay from './Controls.class.js';
 import Character from './Character.class.js';
 import { Project, Scene3D, PhysicsLoader } from 'enable3d'
 import {CameraHelper} from 'three';
-import Ammo from "ammo.js";
-import physicsUniverse from "./Physics.class.js";
+import physicsUniverse from './Physics.class.js';
 
 class Init {
     constructor() {
