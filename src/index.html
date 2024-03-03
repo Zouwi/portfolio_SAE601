@@ -26,10 +26,10 @@
 
         // ------ Ammo.js Init ------
         Ammo().then( AmmoStart );
-        function AmmoStart()
+        function AmmoStart(Ammo)
         {
             tmpTransformation = new Ammo.btTransform();
-            initPhysicsUniverse();
+            initPhysicsUniverse(Ammo);
             //initGraphicsUniverse();
             // base
             createCube(40 , new THREE.Vector3(0, 0, 0) , 0 );
@@ -49,7 +49,7 @@
         let physicsUniverse = undefined;
 
         // ------ Physics World setup ------
-        function initPhysicsUniverse()
+        function initPhysicsUniverse(Ammo)
         {
             let collisionConfiguration  = new Ammo.btDefaultCollisionConfiguration();
             let dispatcher              = new Ammo.btCollisionDispatcher(collisionConfiguration);
@@ -85,7 +85,7 @@
 
         let rigidBody_List = new Array();
 
-        function createCube(scale, position, mass, rot_quaternion)
+        function createCube(scale, position, mass, rot_quaternion, Ammo)
         {
             let quaternion = undefined;
             if(rot_quaternion == null)
