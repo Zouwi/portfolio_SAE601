@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import Config from './Config.class.js';
 import Camera from './Camera.class.js';
-
+import Ammo from './ammo.js';
 
     class Physics {
         constructor() {
