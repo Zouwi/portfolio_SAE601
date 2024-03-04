@@ -19,6 +19,11 @@ class Config {
             canvas: this.canvas
         });
     }
+
+    /** CAMERA **/
+     THREE() {
+        return THREE;
+    }
 }
 
 export default Config;

@@ -1,16 +1,18 @@
-import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import Config from './Config.class.js';
 import Camera from './Camera.class.js';
 import KeyDisplay from './Controls.class.js';
 import Character from './Character.class.js';
-import { Project, Scene3D, PhysicsLoader } from 'enable3d'
 import {CameraHelper} from 'three';
 //import physicsUniverse from './Physics.class.js';
 
 class Init {
     constructor() {
+
         const config = new Config();
+
+        const three = config.THREE();
+
         let camera = new Camera();
 
         //this.physics = new physicsUniverse();
@@ -31,21 +33,17 @@ class Init {
         });
 
         /**BACKGROUND **/
-        config.loader.load('./scene/skybox_autumn_forest.glb', function (gltf) {
+        config.loader.load('./scene/free_-_skybox_ruins-v1.glb', function (gltf) {
             const model = gltf.scene;
-            model.scale.set(0.3, 0.3, 0.3);
+            model.scale.set(0.09, 0.09, 0.09);
             model.position.y = 0;
             model.position.x = 0;
             model.position.z = 0;
-            model.traverse(function (object) {
-                if (object.isMesh) object.castShadow = true;
-                if (object.isMesh) object.receiveShadow = true;
-            });
             config.scene.add(model);
         });
 
         /**CAMERA DEPART **/
-        const fixedCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const fixedCamera = new three.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         fixedCamera.position.set(40, 40, 40); // Position de la caméra fixe
         //fixedCamera.lookAt(0, 0, 0); // Faire en sorte que la caméra fixe regarde vers le centre de la scène
 
@@ -54,7 +52,7 @@ class Init {
 
         /** RENDERER**/
         config.renderer.shadowMap.enabled = true;
-        config.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+        config.renderer.shadowMap.type = three.PCFSoftShadowMap; // default THREE.PCFShadowMap
         config.renderer.setSize(camera.sizes.width, camera.sizes.height)
         config.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
@@ -87,7 +85,7 @@ class Init {
             config.scene.add(model);
 
             const gltfAnimations = gltf.animations;
-            mixer = new THREE.AnimationMixer(model);
+            mixer = new three.AnimationMixer(model);
             animationsMap = new Map();
             gltfAnimations.filter(a => a.name !== 'Static Pose').forEach((a) => {
                 animationsMap.set(a.name, mixer.clipAction(a))
@@ -128,13 +126,13 @@ class Init {
         }, false);
 
         /** Animate **/
-        const clockElapse = new THREE.Clock();
-        const clockDelta = new THREE.Clock();
-        const clockCollision = new THREE.Clock();
+        const clockElapse = new three.Clock();
+        const clockDelta = new three.Clock();
+        const clockCollision = new three.Clock();
 
         const tick = () => {
             // Render
-            config.renderer.render(config.scene, camera.camera);
+
 
             const elapsedTime = clockElapse.getElapsedTime()
 
@@ -148,7 +146,10 @@ class Init {
             if (this.controls) {
                 this.controls.update(mixerUpdateDelta, keysPressed);
             }
+
             orbitControls.update()
+
+            config.renderer.render(config.scene, camera.camera);
 
             // Update physics
             //this.physics.updatePhysicsUniverse(clockCollision.getDelta());

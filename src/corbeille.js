@@ -1,4 +1,4 @@
-import * as THREE from "three";
+/*import * as THREE from "three";
 import Config from "./Config.class.js";
 
 let pathPoints = [

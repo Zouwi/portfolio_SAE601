@@ -1,5 +1,3 @@
-import * as THREE from 'three';
-import Config from './Config.class.js';
 
 export const Z = 'z'
 export const Q = 'q'
