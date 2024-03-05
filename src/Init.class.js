@@ -57,7 +57,7 @@ class Init {
         config.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
         /** CONTROLS **/
-        // Create OrbitControls
+            // Create OrbitControls
         const orbitControls = new OrbitControls(camera.camera, config.renderer.domElement);
         orbitControls.enableDamping = true;
         orbitControls.minDistance = 5;
@@ -132,8 +132,6 @@ class Init {
 
         const tick = () => {
             // Render
-
-
             const elapsedTime = clockElapse.getElapsedTime()
 
             let mixerUpdateDelta = clockDelta.getDelta();
@@ -169,6 +167,4 @@ class Init {
         tick()
     }
 }
-
 export default Init;
-

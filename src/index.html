@@ -7,60 +7,182 @@
     <link rel="stylesheet" href="./style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap"
+          rel="stylesheet">
 
     <script type="module">
-        import * as THREE from 'three';
+        //** INIT **//
+        import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
         import Config from './Config.class.js';
         import Camera from './Camera.class.js';
+        import KeyDisplay from './Controls.class.js';
+        import Character from './Character.class.js';
+        import * as THREE from 'three';
+
+        const config = new Config();
+        //const three = config.THREE();
+        const camera = new Camera();
+
+        //this.physics = new physicsUniverse();
+
+        let controls = null;
+
+        /** ENVIRONMENT **/
+        let scene3D;
+        config.JSONloader.load('./scene/sceneFINAL.json', function (gltf) {
+            console.log(gltf);
+            scene3D = gltf;
+            scene3D.scale.set(1, 1, 1);
+            scene3D.position.y = 0;
+            scene3D.position.x = 0;
+            scene3D.position.z = 0;
+            //config.scene.add(scene3D);
+
+        });
+
+        /**BACKGROUND **/
+        config.loader.load('./scene/free_-_skybox_ruins-v1.glb', function (gltf) {
+            const model = gltf.scene;
+            model.scale.set(0.09, 0.09, 0.09);
+            model.position.y = 0;
+            model.position.x = 0;
+            model.position.z = 0;
+            config.scene.add(model);
+        });
+
+        /**CAMERA DEPART **/
+        const fixedCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        fixedCamera.position.set(40, 40, 40); // Position de la caméra fixe
+        //fixedCamera.lookAt(0, 0, 0); // Faire en sorte que la caméra fixe regarde vers le centre de la scène
+
+        // Ajout de la caméra fixe à la scène
+        config.scene.add(fixedCamera);
+
+        /** RENDERER**/
+        config.renderer.shadowMap.enabled = true;
+        config.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+        config.renderer.setSize(camera.sizes.width, camera.sizes.height)
+        config.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+        /** CONTROLS **/
+            // Create OrbitControls
+        const orbitControls = new OrbitControls(camera.camera, config.renderer.domElement);
+        orbitControls.enableDamping = true;
+        orbitControls.minDistance = 5;
+        orbitControls.maxDistance = 15;
+        orbitControls.enablePan = false;
+        orbitControls.maxPolarAngle = Math.PI / 2 - 0.05;
+        orbitControls.enabled = false;
+        orbitControls.update();
+
+        /** MODEL WITH ANIMATIONS **/
+        let mixer;
+        let model;
+        let animationsMap;
+        // Load 3D model and create player and controls
+        config.loader.load('./models/somali_cat.glb', function (gltf) {
+            model = gltf.scene;
+            model.scale.set(0.3, 0.3, 0.3);
+            model.position.y = 0.56;
+            model.position.x = -18;
+            model.position.z = -17;
+            model.traverse(function (object) {
+                if (object.isMesh) object.castShadow = true;
+                if (object.isMesh) object.receiveShadow = true;
+            });
+            config.scene.add(model);
+
+            const gltfAnimations = gltf.animations;
+            mixer = new THREE.AnimationMixer(model);
+            animationsMap = new Map();
+            gltfAnimations.filter(a => a.name !== 'Static Pose').forEach((a) => {
+                animationsMap.set(a.name, mixer.clipAction(a))
+            });
+
+            // Create Controls instance once the model is loaded
+            //characterControls = new Controls(model, mixer, animationsMap, orbitControls, camera, 'Idle');
+        });
+
+        /**BOUTON DEPART **/
+        // Gestionnaire d'événement pour le bouton "Démarrer"
+        document.querySelector(".btnStart").addEventListener('click', () => {
+            // Supprimer la caméra globale de la scène
+            config.scene.remove(fixedCamera);
+
+            // Supprimer le bouton "Démarrer"
+            orbitControls.enabled = true;
+            document.querySelector(".start").remove();
+
+            // Créer l'instance de Controls avec la caméra du joueur
+            controls = new Character(model, mixer, animationsMap, orbitControls, camera, 'Idle');
+        });
+
+        /** CONTROL KEYS **/
+        const keysPressed = {};
+        const keyDisplayQueue = new KeyDisplay();
+        document.addEventListener('keydown', (event) => {
+            keyDisplayQueue.down(event.key);
+            if (event.shiftKey && Character) {
+                Character.switchRunToggle();
+            } else {
+                keysPressed[event.key.toLowerCase()] = true;
+            }
+        }, false);
+        document.addEventListener('keyup', (event) => {
+            keyDisplayQueue.up(event.key);
+            keysPressed[event.key.toLowerCase()] = false;
+        }, false);
+
+        /** Animate **/
+        const clockElapse = new THREE.Clock();
+        const clockDelta = new THREE.Clock();
+        const clockCollision = new THREE.Clock();
+
+        //**AMMOJS **//
         import Ammo from './ammo.js';
 
         //VARIABLES GLOBALES
         let tmpTransformation = undefined;
         let clock = new THREE.Clock();
         // Three.js
-        let scene            = undefined ;
-        let camera = new Camera();
-        let renderer             = undefined ;
-        let config = new Config();
-
+        let scene = undefined;
+        let renderer = undefined;
+        let physicsUniverse = undefined;
+        let rigidBody_List = [];
         // ------ Ammo.js Init ------
-        Ammo().then( AmmoStart );
-        function AmmoStart(Ammo)
-        {
+        Ammo().then(AmmoStart);
+
+        function AmmoStart(Ammo) {
             tmpTransformation = new Ammo.btTransform();
-            let physicsUniverse = undefined;
-            let rigidBody_List = new Array();
+
 
             initPhysicsUniverse();
             initGraphicsUniverse();
             // base
-            createCube(4 , new THREE.Vector3(0, 0, 0) , 0 );
+            createCube(4, new THREE.Vector3(0, 0, 0), 0);
             // falling cubes
-            createCube(4 , new THREE.Vector3(0, 10, 0) , 1, null );
-            createCube(2 , new THREE.Vector3(10, 30, 0) , 1, null );
-            createCube(4 , new THREE.Vector3(10, 20, 10) , 1, null );
-            createCube(6 , new THREE.Vector3(5, 40, 20) , 1, null );
-            createCube(8 , new THREE.Vector3(25, 100, 5) , 1, null );
-            createCube(8 , new THREE.Vector3(20, 60, 25) , 1, null );
-            createCube(4 , new THREE.Vector3(20, 100, 25) , 1, null );
-            createCube(2 , new THREE.Vector3(20, 200, 25) , 1, null );
-            render();
+            createCube(2, new THREE.Vector3(0, 40, 0), 5, null);
+            createCube(2, new THREE.Vector3(10, 30, 0), 1, null);
+            createCube(4, new THREE.Vector3(10, 20, 10), 1, null);
+            createCube(6, new THREE.Vector3(5, 40, 20), 1, null);
+            createCube(8, new THREE.Vector3(25, 100, 5), 1, null);
+            createCube(8, new THREE.Vector3(20, 60, 25), 1, null);
+            createCube(4, new THREE.Vector3(20, 100, 25), 1, null);
+            createCube(2, new THREE.Vector3(20, 200, 25), 1, null);
+            tick();
 
             // ------ Physics World setup ------
-            function initPhysicsUniverse()
-            {
-                let collisionConfiguration  = new Ammo.btDefaultCollisionConfiguration();
-                let dispatcher              = new Ammo.btCollisionDispatcher(collisionConfiguration);
-                let overlappingPairCache    = new Ammo.btDbvtBroadphase();
-                let solver                  = new Ammo.btSequentialImpulseConstraintSolver();
-                physicsUniverse               = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+            function initPhysicsUniverse() {
+                let collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+                let dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
+                let overlappingPairCache = new Ammo.btDbvtBroadphase();
+                let solver = new Ammo.btSequentialImpulseConstraintSolver();
+                physicsUniverse = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
                 physicsUniverse.setGravity(new Ammo.btVector3(0, -75, 0));
             }
 
             // ------ Three.js setup ------
-            function initGraphicsUniverse()
-            {
+            function initGraphicsUniverse() {
                 clock = new THREE.Clock();
                 //scene = new THREE.Scene();
 
@@ -69,10 +191,10 @@
                 //camera.lookAt(new THREE.Vector3(0, 6, 0));
 
                 //renderer
-                renderer = new THREE.WebGLRenderer({antialias : true, alpha : true});
+                renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
                 renderer.setPixelRatio(window.devicePixelRatio);
                 renderer.setSize(window.innerWidth, window.innerHeight);
-                document.body.appendChild(renderer.domElement) ;
+                document.body.appendChild(renderer.domElement);
 
                 //light
                 let ambientLight = new THREE.AmbientLight(0xcccccc, 0.2);
@@ -84,21 +206,16 @@
             }
 
 
-
-            function createCube(scale, position, mass, rot_quaternion)
-            {
+            function createCube(scale, position, mass, rot_quaternion) {
                 let quaternion = undefined;
-                if(rot_quaternion == null)
-                {
-                    quaternion = {x: 0, y: 0, z: 0, w:  1};
-                }
-                else
-                {
+                if (rot_quaternion == null) {
+                    quaternion = {x: 0, y: 0, z: 0, w: 1};
+                } else {
                     quaternion = rot_quaternion;
                 }
                 // ------ Graphics Universe - Three.JS ------
                 let cube = new THREE.BoxGeometry(scale, scale, scale);
-                let material = new THREE.MeshPhongMaterial({ color: Math.random() * 0xffffff });
+                let material = new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff});
                 let newCube = new THREE.Mesh(cube, material);
                 newCube.position.set(position.x, position.y, position.z);
                 config.scene.add(newCube);
@@ -106,53 +223,77 @@
                 // ------ Physics Universe - Ammo.js ------
                 let transform = new Ammo.btTransform();
                 transform.setIdentity();
-                transform.setOrigin( new Ammo.btVector3( position.x, position.y, position.z ) );
-                transform.setRotation( new Ammo.btQuaternion( quaternion.x, quaternion.y, quaternion.z, quaternion.w ) );
-                let defaultMotionState = new Ammo.btDefaultMotionState( transform );
-                let structColShape = new Ammo.btBoxShape( new Ammo.btVector3( scale*0.5, scale*0.5, scale*0.5 ) );
-                structColShape.setMargin( 0.05 );
-                let localInertia = new Ammo.btVector3( 0, 0, 0 );
-                structColShape.calculateLocalInertia( mass, localInertia );
-                let RBody_Info = new Ammo.btRigidBodyConstructionInfo( mass, defaultMotionState, structColShape, localInertia );
-                let RBody = new Ammo.btRigidBody( RBody_Info );
+                transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+                transform.setRotation(new Ammo.btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w));
+                let defaultMotionState = new Ammo.btDefaultMotionState(transform);
+                let structColShape = new Ammo.btBoxShape(new Ammo.btVector3(scale * 0.5, scale * 0.5, scale * 0.5));
+                structColShape.setMargin(0.05);
+                let localInertia = new Ammo.btVector3(0, 0, 0);
+                structColShape.calculateLocalInertia(mass, localInertia);
+                let RBody_Info = new Ammo.btRigidBodyConstructionInfo(mass, defaultMotionState, structColShape, localInertia);
+                let RBody = new Ammo.btRigidBody(RBody_Info);
 
-                physicsUniverse.addRigidBody( RBody );
+                physicsUniverse.addRigidBody(RBody);
                 newCube.userData.physicsBody = RBody;
                 rigidBody_List.push(newCube);
             }
 
-            function updatePhysicsUniverse( deltaTime )
-            {
-                physicsUniverse.stepSimulation( deltaTime, 10 );
 
-                for ( let i = 0; i < rigidBody_List.length; i++ )
-                {
-                    let Graphics_Obj = rigidBody_List[ i ];
-                    let Physics_Obj = Graphics_Obj.userData.physicsBody;
 
-                    let motionState = Physics_Obj.getMotionState();
-                    if ( motionState )
-                    {
-                        motionState.getWorldTransform( tmpTransformation );
-                        let new_pos = tmpTransformation.getOrigin();
-                        let new_qua = tmpTransformation.getRotation();
-                        Graphics_Obj.position.set( new_pos.x(), new_pos.y(), new_pos.z() );
-                        Graphics_Obj.quaternion.set( new_qua.x(), new_qua.y(), new_qua.z(), new_qua.w() );
-                    }
+            /*function render() {
+                let deltaTime = clock.getDelta();
+                updatePhysicsUniverse(deltaTime);
+
+                config.renderer.render(config.scene, camera.camera);
+                requestAnimationFrame(render);
+            }*/
+
+        }
+        function updatePhysicsUniverse(deltaTime) {
+            physicsUniverse.stepSimulation(10, 10);
+
+            for (let i = 0; i < rigidBody_List.length; i++) {
+                let Graphics_Obj = rigidBody_List[i];
+                let Physics_Obj = Graphics_Obj.userData.physicsBody;
+
+                let motionState = Physics_Obj.getMotionState();
+                if (motionState) {
+                    motionState.getWorldTransform(tmpTransformation);
+                    let new_pos = tmpTransformation.getOrigin();
+                    let new_qua = tmpTransformation.getRotation();
+                    Graphics_Obj.position.set(new_pos.x(), new_pos.y(), new_pos.z());
+                    Graphics_Obj.quaternion.set(new_qua.x(), new_qua.y(), new_qua.z(), new_qua.w());
                 }
             }
 
-            function render()
-            {
-                let deltaTime = clock.getDelta();
-                updatePhysicsUniverse( deltaTime );
+        }
+        function tick() {
+            // Render
+            const elapsedTime = clockElapse.getElapsedTime()
 
-                renderer.render( config.scene, camera.camera );
-                requestAnimationFrame( render );
+            let mixerUpdateDelta = clockDelta.getDelta();
+
+            if (controls) {
+                controls.update(mixerUpdateDelta, keysPressed);
+                //this.controls.updatePhysics(); // Appeler updatePhysics sur l'instance de Character
             }
 
+            if (controls) {
+                controls.update(mixerUpdateDelta, keysPressed);
+            }
+
+            orbitControls.update()
+
+            let deltaTime = clock.getDelta();
+            updatePhysicsUniverse(deltaTime);
+
+            config.renderer.render(config.scene, camera.camera);
+
+            // Call tick again on the next frame
+            window.requestAnimationFrame(tick)
         }
 
+        tick()
 
     </script>
 </head>
@@ -161,7 +302,10 @@
     <div class="texteStart">
         <div class="title">Un zeste d'éclat</div>
         <div class="subTitle">Zoé Gabet portfolio</div>
-        <div class="subTexte">Êtes vous prêt à rentrer dans un monde fantastique de rêves, d'espoirs et d'accomplissements ? Partez à la découverte de mon parcours ainsi que de mes créations du lycée jusqu'à aujourd'hui en passant les passions.</div>
+        <div class="subTexte">Êtes vous prêt à rentrer dans un monde fantastique de rêves, d'espoirs et
+            d'accomplissements ? Partez à la découverte de mon parcours ainsi que de mes créations du lycée jusqu'à
+            aujourd'hui en passant les passions.
+        </div>
         <div class="btnStart">Découvrir</div>
     </div>
 </div>

@@ -1,4 +1,5 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import * as THREE from 'three'
 import { Q, D, DIRECTIONS, S, Z } from './Controls.class.js'
 import Config from './Config.class.js'
 import Camera from './Camera.class.js'
@@ -7,6 +8,7 @@ export class Character {
     constructor(model, mixer, animationsMap, orbitControl, camera, currentAction) {
         //this.physicsUniverse = new physicsUniverse;
         //this.createPhysicalBody();
+
         this.config = new Config();
         const three = this.config.THREE();
         this.model = model;
@@ -18,19 +20,21 @@ export class Character {
                 value.play();
             }
         });
+
         this.orbitControl = orbitControl;
         this.camera = camera;
         this.cameraObject = this.camera.getCamera(); // Utilisez la méthode pour récupérer la caméra de l'instance de Camera
-        this.cameraTarget = new three.Vector3();
+        this.cameraTarget = new THREE.Vector3();
+
         this.updateCameraTarget(-100, -100);
 
         // state
         this.toggleRun = true;
 
         // temporary data
-        this.walkDirection = new three.Vector3();
-        this.rotateAngle = new three.Vector3(0, 1, 0);
-        this.rotateQuarternion = new three.Quaternion();
+        this.walkDirection = new THREE.Vector3();
+        this.rotateAngle = new THREE.Vector3(0, 1, 0);
+        this.rotateQuarternion = new THREE.Quaternion();
 
         // constants
         this.fadeDuration = 0.1;
