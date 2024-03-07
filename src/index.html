@@ -24,6 +24,7 @@
         const camera = new Camera();
 
         //this.physics = new physicsUniverse();
+        let collision = null;
 
         let controls = null;
 
@@ -149,19 +150,30 @@
         let renderer = undefined;
         let physicsUniverse = undefined;
         let rigidBody_List = [];
+
+        let vecteur = null;
+        let moveX = 0, moveY = 0, moveZ = 0;
+
+        let ballObject = null, moveDirection = { left: 0, right: 0, forward: 0, back: 0 }
+
+        const STATE = { DISABLE_DEACTIVATION : 4 };
+
         // ------ Ammo.js Init ------
         Ammo().then(AmmoStart);
 
         function AmmoStart(Ammo) {
             tmpTransformation = new Ammo.btTransform();
-
+            vecteur = new Ammo.btVector3(moveX, moveY, moveZ);
 
             initPhysicsUniverse();
             initGraphicsUniverse();
+            createBall();
+            setupEventHandlers();
+
             // base
-            createCube(4, new THREE.Vector3(0, 0, 0), 0);
+            createCube(40, new THREE.Vector3(0, -20, 0), 0);
             // falling cubes
-            createCube(2, new THREE.Vector3(0, 40, 0), 5, null);
+            createCube(2, new THREE.Vector3(0, -40, 0), 5, null);
             createCube(2, new THREE.Vector3(10, 30, 0), 1, null);
             createCube(4, new THREE.Vector3(10, 20, 10), 1, null);
             createCube(6, new THREE.Vector3(5, 40, 20), 1, null);
@@ -169,7 +181,13 @@
             createCube(8, new THREE.Vector3(20, 60, 25), 1, null);
             createCube(4, new THREE.Vector3(20, 100, 25), 1, null);
             createCube(2, new THREE.Vector3(20, 200, 25), 1, null);
+            //Cube de collision pour le personnage
+            createCube(2, new THREE.Vector3(0,0,0), 0, null);
+
+            collision = rigidBody_List[1];
             tick();
+
+
 
             // ------ Physics World setup ------
             function initPhysicsUniverse() {
@@ -202,7 +220,6 @@
                 let directionalLight = new THREE.DirectionalLight(0xffffff, 10.6);
                 directionalLight.position.set(-1, 0.9, 0.4);
                 config.scene.add(directionalLight);
-                console.log(directionalLight);
             }
 
 
@@ -236,21 +253,96 @@
                 physicsUniverse.addRigidBody(RBody);
                 newCube.userData.physicsBody = RBody;
                 rigidBody_List.push(newCube);
+                console.log(rigidBody_List[1]);
             }
 
+            function createCollision(scale, position, mass, rot_quaternion) {
+                let quaternion = undefined;
+                if (rot_quaternion == null) {
+                    quaternion = {x: 0, y: 0, z: 0, w: 1};
+                } else {
+                    quaternion = rot_quaternion;
+                }
+                // ------ Graphics Universe - Three.JS ------
+                let cube = new THREE.BoxGeometry(scale, scale, scale);
+                let material = new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff});
+                let newCube = new THREE.Mesh(cube, material);
+                newCube.position.set(position.x, position.y, position.z);
+                config.scene.add(newCube);
+
+                // Création du cube de collision du personnage
+                let playerCollisionShape = new Ammo.btBoxShape(new Ammo.btVector3(scale * 0.5, scale * 0.5, scale * 0.5));
+                let playerCollisionTransform = new Ammo.btTransform();
+                playerCollisionTransform.setIdentity();
+                playerCollisionTransform.setOrigin(new Ammo.btVector3(model.position.x, model.position.y, model.position.z));
+                let playerCollisionMotionState = new Ammo.btDefaultMotionState(playerCollisionTransform);
+                let playerCollisionMass = 0; // Masse nulle pour un corps statique
+                let playerCollisionInertia = new Ammo.btVector3(0, 0, 0);
+                let playerCollisionRigidBodyInfo = new Ammo.btRigidBodyConstructionInfo(playerCollisionMass, playerCollisionMotionState, playerCollisionShape, playerCollisionInertia);
+                let playerCollisionRigidBody = new Ammo.btRigidBody(playerCollisionRigidBodyInfo);
+                physicsUniverse.addRigidBody(playerCollisionRigidBody);
+                rigidBody_List.push(playerCollisionRigidBody);
+
+                // Création de la contrainte entre le cube de collision du personnage et le personnage
+                let constraintPos = new Ammo.btVector3(0, 0, 0); // Position relative entre les deux corps
+                let constraint = new Ammo.btGeneric6DofConstraint(playerRigidBody, playerCollisionRigidBody, new Ammo.btTransform(), new Ammo.btTransform(), true);
+                constraint.setLinearLowerLimit(constraintPos);
+                constraint.setLinearUpperLimit(constraintPos);
+                constraint.setAngularLowerLimit(constraintPos);
+                constraint.setAngularUpperLimit(constraintPos);
+                physicsUniverse.addConstraint(constraint, true);
+            }
+
+            function createBall(){
+
+                let pos = {x: 0, y: 4, z: 0};
+                let radius = 2;
+                let quat = {x: 0, y: 0, z: 0, w: 1};
+                let mass = 1;
+
+                //threeJS Section
+                let ball = new THREE.SphereGeometry(radius);
+                let materialBall = new THREE.MeshPhongMaterial({color: 0xff0505});
+                let newBall = ballObject = new THREE.Mesh(ball, materialBall);
+                config.scene.add(newBall);
+                newBall.position.set(pos.x, pos.y, pos.z);
+
+                newBall.castShadow = true;
+                newBall.receiveShadow = true;
 
 
-            /*function render() {
-                let deltaTime = clock.getDelta();
-                updatePhysicsUniverse(deltaTime);
+                //Ammojs Section
+                let transform = new Ammo.btTransform();
+                transform.setIdentity();
+                transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
+                transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
+                let motionState = new Ammo.btDefaultMotionState( transform );
 
-                config.renderer.render(config.scene, camera.camera);
-                requestAnimationFrame(render);
-            }*/
+                let colShape = new Ammo.btSphereShape( radius );
+                colShape.setMargin( 0.05 );
+
+                let localInertia = new Ammo.btVector3( 0, 0, 0 );
+                colShape.calculateLocalInertia( mass, localInertia );
+
+                let rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, colShape, localInertia );
+                let body = new Ammo.btRigidBody( rbInfo );
+
+                body.setFriction(4);
+                body.setRollingFriction(10);
+
+                body.setActivationState( STATE.DISABLE_DEACTIVATION )
+
+
+                physicsUniverse.addRigidBody( body );
+
+                newBall.userData.physicsBody = body;
+                rigidBody_List.push(newBall);
+            }
 
         }
+
         function updatePhysicsUniverse(deltaTime) {
-            physicsUniverse.stepSimulation(10, 10);
+            physicsUniverse.stepSimulation(deltaTime, 10);
 
             for (let i = 0; i < rigidBody_List.length; i++) {
                 let Graphics_Obj = rigidBody_List[i];
@@ -267,6 +359,23 @@
             }
 
         }
+
+        function moveBall() {
+            let scalingFactor = 20;
+
+            let moveX = moveDirection.right - moveDirection.left;
+            let moveZ = moveDirection.back - moveDirection.forward;
+            let moveY = 0;
+
+            if (moveX === 0 && moveY === 0 && moveZ === 0) return;
+
+            let resultantImpulse = vecteur;
+            resultantImpulse.op_mul(scalingFactor);
+
+            let physicsBody2 = ballObject.userData.physicsBody;
+            physicsBody2.setLinearVelocity(resultantImpulse);
+        };
+
         function tick() {
             // Render
             const elapsedTime = clockElapse.getElapsedTime()
@@ -280,7 +389,15 @@
 
             if (controls) {
                 controls.update(mixerUpdateDelta, keysPressed);
+                collision.position.copy(model.position);
             }
+
+
+            moveBall();
+
+            let deltaTime2 = clock.getDelta();
+
+            updatePhysics( deltaTime2 );
 
             orbitControls.update()
 
@@ -293,7 +410,91 @@
             window.requestAnimationFrame(tick)
         }
 
-        tick()
+        tick();
+
+        function setupEventHandlers(){
+
+            window.addEventListener( 'keydown', handleKeyDown, false);
+            window.addEventListener( 'keyup', handleKeyUp, false);
+
+        }
+
+
+        function handleKeyDown(event){
+
+            let keyCode = event.keyCode;
+
+            switch(keyCode){
+
+                case 87: //W: FORWARD
+                    moveDirection.forward = 1
+                    break;
+
+                case 83: //S: BACK
+                    moveDirection.back = 1
+                    break;
+
+                case 65: //A: LEFT
+                    moveDirection.left = 1
+                    break;
+
+                case 68: //D: RIGHT
+                    moveDirection.right = 1
+                    break;
+
+            }
+        }
+
+
+        function handleKeyUp(event){
+            let keyCode = event.keyCode;
+
+            switch(keyCode){
+                case 87: //FORWARD
+                    moveDirection.forward = 0
+                    break;
+
+                case 83: //BACK
+                    moveDirection.back = 0
+                    break;
+
+                case 65: //LEFT
+                    moveDirection.left = 0
+                    break;
+
+                case 68: //RIGHT
+                    moveDirection.right = 0
+                    break;
+
+            }
+
+        }
+
+
+        function updatePhysics( deltaTime ){
+
+            // Step world
+            physicsUniverse.stepSimulation( deltaTime, 10 );
+
+            // Update rigid bodies
+            for ( let i = 0; i < rigidBody_List.length; i++ ) {
+                let objThree = rigidBody_List[ i ];
+                let objAmmo = objThree.userData.physicsBody;
+                let ms = objAmmo.getMotionState();
+                if ( ms ) {
+
+                    ms.getWorldTransform( tmpTransformation );
+                    let p = tmpTransformation.getOrigin();
+                    let q = tmpTransformation.getRotation();
+                    objThree.position.set( p.x(), p.y(), p.z() );
+                    objThree.quaternion.set( q.x(), q.y(), q.z(), q.w() );
+
+                }
+            }
+
+        }
+
+
 
     </script>
 </head>

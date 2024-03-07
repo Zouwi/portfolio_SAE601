@@ -44,6 +44,9 @@ export class Controls {
         if (key) {
             document.querySelector("#touch"+key.toUpperCase()+">*").classList.remove("svgChange");
         }
+        else {
+            console.log("non");
+        }
     }
 }
 
