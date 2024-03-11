@@ -40,6 +40,14 @@
             //config.scene.add(scene3D);
 
         });
+        config.loader.load('./scene/sceneNOLIGHT.glb', function (gltf) {
+            const model = gltf.scene;
+            model.scale.set(1, 1, 1);
+            model.position.y = 0;
+            model.position.x = 0;
+            model.position.z = 0;
+            config.scene.add(model);
+        });
 
         /**BACKGROUND **/
         config.loader.load('./scene/free_-_skybox_ruins-v1.glb', function (gltf) {
@@ -93,7 +101,6 @@
                 if (object.isMesh) object.receiveShadow = true;
             });
             config.scene.add(model);
-            modelPosition = model.position;
 
             const gltfAnimations = gltf.animations;
             mixer = new THREE.AnimationMixer(model);
@@ -180,8 +187,8 @@
             // base
             createCube(40, new THREE.Vector3(0, -20, 0), 0);
             // falling cubes
-            createCube(2, new THREE.Vector3(0, -40, 0), 5, null);
-            createCube(2, new THREE.Vector3(10, 30, 0), 1, null);
+            createCube(2, new THREE.Vector3(-10, 0, -15), 0, null);
+            createCube(3, new THREE.Vector3(10, 30, 0), 1, null);
             createCube(4, new THREE.Vector3(10, 20, 10), 1, null);
             createCube(6, new THREE.Vector3(5, 40, 20), 1, null);
             createCube(8, new THREE.Vector3(25, 100, 5), 1, null);
@@ -189,7 +196,7 @@
             createCube(4, new THREE.Vector3(20, 100, 25), 1, null);
             createCube(2, new THREE.Vector3(20, 200, 25), 1, null);
             //Cube de collision pour le personnage
-            createCube(2, new THREE.Vector3(0, 0, 0), 0, null);
+            //createCube(2, new THREE.Vector3(0, 0, 0), 0, null);
 
             collision = rigidBody_List[1];
             tick();
@@ -223,7 +230,7 @@
                 //light
                 let ambientLight = new THREE.AmbientLight(0xcccccc, 0.2);
                 config.scene.add(ambientLight);
-                let directionalLight = new THREE.DirectionalLight(0xffffff, 10.6);
+                let directionalLight = new THREE.DirectionalLight(0xffffff, 5.6);
                 directionalLight.position.set(-1, 0.9, 0.4);
                 config.scene.add(directionalLight);
             }
@@ -264,9 +271,9 @@
             function createBall() {
 
                 let pos = {x: -18, y: 0, z: -17};
-                let radius = 1;
+                let radius = 0.6;
                 let quat = {x: 0, y: 0, z: 0, w: 1};
-                let mass = 4;
+                let mass = 10;
 
                 //threeJS Section
                 let ball = new THREE.SphereGeometry(radius);
@@ -358,7 +365,7 @@
                 let displacementVector = characterPosition.clone().sub(ballPosition);
 
                 // Utilisez le vecteur de déplacement pour définir la vitesse linéaire de la boule
-                let scalingFactor = 20;
+                let scalingFactor = 100;
                 let resultantImpulse = new Ammo.btVector3(displacementVector.x, displacementVector.y, displacementVector.z);
 
                 if (resultantImpulse.length() > 1) {
@@ -368,6 +375,47 @@
 
                 let physicsBody2 = ballObject.userData.physicsBody;
                 physicsBody2.setLinearVelocity(resultantImpulse);
+
+                // Vérifiez les collisions avec les cubes de collision
+                for (let i = 0; i < rigidBody_List.length; i++) {
+                    let cube = rigidBody_List[i];
+                    let cubePhysicsBody = cube.userData.physicsBody;
+
+                    // Utilisez la fonction checkCollision pour vérifier si la boule entre en collision avec le cube
+                    if (checkCollision(ballObject, cubePhysicsBody)) {
+                        // Si une collision est détectée, arrêtez le mouvement de la boule
+                        physicsBody2.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
+                        break; // Sortez de la boucle car une collision a déjà été détectée
+                    }
+                }
+            }
+
+            // Fonction pour vérifier la collision entre deux objets
+            function checkCollision(object1, object2) {
+                let dispatcher = physicsUniverse.getDispatcher();
+                let numManifolds = dispatcher.getNumManifolds();
+
+                for (let i = 0; i < numManifolds; i++) {
+                    let contactManifold = dispatcher.getManifoldByIndexInternal(i);
+                    let numContacts = contactManifold.getNumContacts();
+
+                    for (let j = 0; j < numContacts; j++) {
+                        let contactPoint = contactManifold.getContactPoint(j);
+                        let distance = contactPoint.getDistance();
+
+                        if (distance < 0) {
+                            let objectA = contactManifold.getBody0();
+                            let objectB = contactManifold.getBody1();
+
+                            // Vérifiez si object1 et object2 sont impliqués dans la collision actuelle
+                            if ((objectA === object1 && objectB === object2) || (objectA === object2 && objectB === object1)) {
+                                return true; // Collision détectée
+                            }
+                        }
+                    }
+                }
+
+                return false; // Pas de collision détectée
             }
 
             function setupEventHandlers() {
@@ -469,7 +517,11 @@
                     //collision.position.copy(model.position);
                     moveBall(controls.model.position);
 
-                    console.log(ballObject.position);
+                    // Récupération de la position de la balle
+                    let ballPosition = ballObject.position;
+
+                    // Mise à jour de la position du personnage en fonction de la position de la balle
+                    controls.model.position.copy(ballPosition);
                 }
 
 
