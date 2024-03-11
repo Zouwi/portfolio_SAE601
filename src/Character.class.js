@@ -101,7 +101,6 @@ export class Character {
     }
 
     updateCameraTarget(moveX, moveZ) {
-        console.log(this.walkDirection);
         if (this.cameraObject) {
             // Move camera
             this.cameraObject.position.x += moveX;

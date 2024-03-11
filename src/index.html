@@ -80,6 +80,7 @@
         let mixer;
         let model;
         let animationsMap;
+        let modelPosition;
         // Load 3D model and create player and controls
         config.loader.load('./models/somali_cat.glb', function (gltf) {
             model = gltf.scene;
@@ -92,6 +93,7 @@
                 if (object.isMesh) object.receiveShadow = true;
             });
             config.scene.add(model);
+            modelPosition = model.position;
 
             const gltfAnimations = gltf.animations;
             mixer = new THREE.AnimationMixer(model);
@@ -123,8 +125,8 @@
         const keyDisplayQueue = new KeyDisplay();
         document.addEventListener('keydown', (event) => {
             keyDisplayQueue.down(event.key);
-            if (event.shiftKey && Character) {
-                Character.switchRunToggle();
+            if (event.shiftKey && controls) {
+                controls.switchRunToggle();
             } else {
                 keysPressed[event.key.toLowerCase()] = true;
             }
@@ -143,6 +145,7 @@
         import Ammo from './ammo.js';
 
         //VARIABLES GLOBALES
+        let characterPosition = config.scene.getObjectById(1);
         let tmpTransformation = undefined;
         let clock = new THREE.Clock();
         // Three.js
@@ -154,12 +157,14 @@
         let vecteur = null;
         let moveX = 0, moveY = 0, moveZ = 0;
 
-        let ballObject = null, moveDirection = { left: 0, right: 0, forward: 0, back: 0 }
+        let ballObject = null, moveDirection = {left: 0, right: 0, forward: 0, back: 0}
 
-        const STATE = { DISABLE_DEACTIVATION : 4 };
+        const STATE = {DISABLE_DEACTIVATION: 4}
+
 
         // ------ Ammo.js Init ------
         Ammo().then(AmmoStart);
+
 
         function AmmoStart(Ammo) {
             tmpTransformation = new Ammo.btTransform();
@@ -168,7 +173,9 @@
             initPhysicsUniverse();
             initGraphicsUniverse();
             createBall();
-            setupEventHandlers();
+            window.addEventListener('keydown', handleKeyDown, false);
+            window.addEventListener('keyup', handleKeyUp, false);
+            //setupEventHandlers();
 
             // base
             createCube(40, new THREE.Vector3(0, -20, 0), 0);
@@ -182,11 +189,10 @@
             createCube(4, new THREE.Vector3(20, 100, 25), 1, null);
             createCube(2, new THREE.Vector3(20, 200, 25), 1, null);
             //Cube de collision pour le personnage
-            createCube(2, new THREE.Vector3(0,0,0), 0, null);
+            createCube(2, new THREE.Vector3(0, 0, 0), 0, null);
 
             collision = rigidBody_List[1];
             tick();
-
 
 
             // ------ Physics World setup ------
@@ -253,56 +259,18 @@
                 physicsUniverse.addRigidBody(RBody);
                 newCube.userData.physicsBody = RBody;
                 rigidBody_List.push(newCube);
-                console.log(rigidBody_List[1]);
             }
 
-            function createCollision(scale, position, mass, rot_quaternion) {
-                let quaternion = undefined;
-                if (rot_quaternion == null) {
-                    quaternion = {x: 0, y: 0, z: 0, w: 1};
-                } else {
-                    quaternion = rot_quaternion;
-                }
-                // ------ Graphics Universe - Three.JS ------
-                let cube = new THREE.BoxGeometry(scale, scale, scale);
-                let material = new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff});
-                let newCube = new THREE.Mesh(cube, material);
-                newCube.position.set(position.x, position.y, position.z);
-                config.scene.add(newCube);
+            function createBall() {
 
-                // Création du cube de collision du personnage
-                let playerCollisionShape = new Ammo.btBoxShape(new Ammo.btVector3(scale * 0.5, scale * 0.5, scale * 0.5));
-                let playerCollisionTransform = new Ammo.btTransform();
-                playerCollisionTransform.setIdentity();
-                playerCollisionTransform.setOrigin(new Ammo.btVector3(model.position.x, model.position.y, model.position.z));
-                let playerCollisionMotionState = new Ammo.btDefaultMotionState(playerCollisionTransform);
-                let playerCollisionMass = 0; // Masse nulle pour un corps statique
-                let playerCollisionInertia = new Ammo.btVector3(0, 0, 0);
-                let playerCollisionRigidBodyInfo = new Ammo.btRigidBodyConstructionInfo(playerCollisionMass, playerCollisionMotionState, playerCollisionShape, playerCollisionInertia);
-                let playerCollisionRigidBody = new Ammo.btRigidBody(playerCollisionRigidBodyInfo);
-                physicsUniverse.addRigidBody(playerCollisionRigidBody);
-                rigidBody_List.push(playerCollisionRigidBody);
-
-                // Création de la contrainte entre le cube de collision du personnage et le personnage
-                let constraintPos = new Ammo.btVector3(0, 0, 0); // Position relative entre les deux corps
-                let constraint = new Ammo.btGeneric6DofConstraint(playerRigidBody, playerCollisionRigidBody, new Ammo.btTransform(), new Ammo.btTransform(), true);
-                constraint.setLinearLowerLimit(constraintPos);
-                constraint.setLinearUpperLimit(constraintPos);
-                constraint.setAngularLowerLimit(constraintPos);
-                constraint.setAngularUpperLimit(constraintPos);
-                physicsUniverse.addConstraint(constraint, true);
-            }
-
-            function createBall(){
-
-                let pos = {x: 0, y: 4, z: 0};
-                let radius = 2;
+                let pos = {x: -18, y: 0, z: -17};
+                let radius = 1;
                 let quat = {x: 0, y: 0, z: 0, w: 1};
-                let mass = 1;
+                let mass = 4;
 
                 //threeJS Section
                 let ball = new THREE.SphereGeometry(radius);
-                let materialBall = new THREE.MeshPhongMaterial({color: 0xff0505});
+                let materialBall = new THREE.MeshPhongMaterial({color: 0xffffff, opacity: 0, transparent: true});
                 let newBall = ballObject = new THREE.Mesh(ball, materialBall);
                 config.scene.add(newBall);
                 newBall.position.set(pos.x, pos.y, pos.z);
@@ -314,186 +282,214 @@
                 //Ammojs Section
                 let transform = new Ammo.btTransform();
                 transform.setIdentity();
-                transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
-                transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
-                let motionState = new Ammo.btDefaultMotionState( transform );
+                transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+                transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
+                let motionState = new Ammo.btDefaultMotionState(transform);
 
-                let colShape = new Ammo.btSphereShape( radius );
-                colShape.setMargin( 0.05 );
+                let colShape = new Ammo.btSphereShape(radius);
+                colShape.setMargin(0.05);
 
-                let localInertia = new Ammo.btVector3( 0, 0, 0 );
-                colShape.calculateLocalInertia( mass, localInertia );
+                let localInertia = new Ammo.btVector3(0, 0, 0);
+                colShape.calculateLocalInertia(mass, localInertia);
 
-                let rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, colShape, localInertia );
-                let body = new Ammo.btRigidBody( rbInfo );
+                let rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, colShape, localInertia);
+                let body = new Ammo.btRigidBody(rbInfo);
 
                 body.setFriction(4);
                 body.setRollingFriction(10);
 
-                body.setActivationState( STATE.DISABLE_DEACTIVATION )
+                body.setActivationState(STATE.DISABLE_DEACTIVATION)
 
-
-                physicsUniverse.addRigidBody( body );
+                physicsUniverse.addRigidBody(body);
 
                 newBall.userData.physicsBody = body;
                 rigidBody_List.push(newBall);
             }
 
-        }
 
-        function updatePhysicsUniverse(deltaTime) {
-            physicsUniverse.stepSimulation(deltaTime, 10);
-
-            for (let i = 0; i < rigidBody_List.length; i++) {
-                let Graphics_Obj = rigidBody_List[i];
-                let Physics_Obj = Graphics_Obj.userData.physicsBody;
-
-                let motionState = Physics_Obj.getMotionState();
-                if (motionState) {
-                    motionState.getWorldTransform(tmpTransformation);
-                    let new_pos = tmpTransformation.getOrigin();
-                    let new_qua = tmpTransformation.getRotation();
-                    Graphics_Obj.position.set(new_pos.x(), new_pos.y(), new_pos.z());
-                    Graphics_Obj.quaternion.set(new_qua.x(), new_qua.y(), new_qua.z(), new_qua.w());
+            function updatePhysicsUniverse(deltaTime) {
+                if (physicsUniverse !== undefined) {
+                    physicsUniverse.stepSimulation(deltaTime, 10);
                 }
-            }
+                for (let i = 0; i < rigidBody_List.length; i++) {
+                    let Graphics_Obj = rigidBody_List[i];
+                    let Physics_Obj = Graphics_Obj.userData.physicsBody;
 
-        }
-
-        function moveBall() {
-            let scalingFactor = 20;
-
-            let moveX = moveDirection.right - moveDirection.left;
-            let moveZ = moveDirection.back - moveDirection.forward;
-            let moveY = 0;
-
-            if (moveX === 0 && moveY === 0 && moveZ === 0) return;
-
-            let resultantImpulse = vecteur;
-            resultantImpulse.op_mul(scalingFactor);
-
-            let physicsBody2 = ballObject.userData.physicsBody;
-            physicsBody2.setLinearVelocity(resultantImpulse);
-        };
-
-        function tick() {
-            // Render
-            const elapsedTime = clockElapse.getElapsedTime()
-
-            let mixerUpdateDelta = clockDelta.getDelta();
-
-            if (controls) {
-                controls.update(mixerUpdateDelta, keysPressed);
-                //this.controls.updatePhysics(); // Appeler updatePhysics sur l'instance de Character
-            }
-
-            if (controls) {
-                controls.update(mixerUpdateDelta, keysPressed);
-                collision.position.copy(model.position);
-            }
-
-
-            moveBall();
-
-            let deltaTime2 = clock.getDelta();
-
-            updatePhysics( deltaTime2 );
-
-            orbitControls.update()
-
-            let deltaTime = clock.getDelta();
-            updatePhysicsUniverse(deltaTime);
-
-            config.renderer.render(config.scene, camera.camera);
-
-            // Call tick again on the next frame
-            window.requestAnimationFrame(tick)
-        }
-
-        tick();
-
-        function setupEventHandlers(){
-
-            window.addEventListener( 'keydown', handleKeyDown, false);
-            window.addEventListener( 'keyup', handleKeyUp, false);
-
-        }
-
-
-        function handleKeyDown(event){
-
-            let keyCode = event.keyCode;
-
-            switch(keyCode){
-
-                case 87: //W: FORWARD
-                    moveDirection.forward = 1
-                    break;
-
-                case 83: //S: BACK
-                    moveDirection.back = 1
-                    break;
-
-                case 65: //A: LEFT
-                    moveDirection.left = 1
-                    break;
-
-                case 68: //D: RIGHT
-                    moveDirection.right = 1
-                    break;
-
-            }
-        }
-
-
-        function handleKeyUp(event){
-            let keyCode = event.keyCode;
-
-            switch(keyCode){
-                case 87: //FORWARD
-                    moveDirection.forward = 0
-                    break;
-
-                case 83: //BACK
-                    moveDirection.back = 0
-                    break;
-
-                case 65: //LEFT
-                    moveDirection.left = 0
-                    break;
-
-                case 68: //RIGHT
-                    moveDirection.right = 0
-                    break;
+                    let motionState = Physics_Obj.getMotionState();
+                    if (motionState) {
+                        motionState.getWorldTransform(tmpTransformation);
+                        let new_pos = tmpTransformation.getOrigin();
+                        let new_qua = tmpTransformation.getRotation();
+                        Graphics_Obj.position.set(new_pos.x(), new_pos.y(), new_pos.z());
+                        Graphics_Obj.quaternion.set(new_qua.x(), new_qua.y(), new_qua.z(), new_qua.w());
+                    }
+                }
 
             }
 
-        }
+            /*function moveBall(X, Y, Z) {
+                //https://gist.github.com/BlueMagnificent/64fe7bb11795a82644326d788f042179
+                let scalingFactor = 20;
+                moveX = moveDirection.right - moveDirection.left;
+                moveZ = moveDirection.back - moveDirection.forward;
+                moveY = 0;
 
+                if (moveX === 0 && moveY === 0 && moveZ === 0) return;
+                let resultantImpulse;
+                if (Y < 0) {
+                    resultantImpulse = new Ammo.btVector3(0, 0, 0);
+                }
+                else {
+                    resultantImpulse = new Ammo.btVector3(X, Y, Z);
+                }
 
-        function updatePhysics( deltaTime ){
+                if (resultantImpulse.length() > 1) {
+                    resultantImpulse.normalize();
+                }
+                resultantImpulse.op_mul(scalingFactor);
 
-            // Step world
-            physicsUniverse.stepSimulation( deltaTime, 10 );
+                let physicsBody2 = ballObject.userData.physicsBody;
+                physicsBody2.setLinearVelocity(resultantImpulse);
 
-            // Update rigid bodies
-            for ( let i = 0; i < rigidBody_List.length; i++ ) {
-                let objThree = rigidBody_List[ i ];
-                let objAmmo = objThree.userData.physicsBody;
-                let ms = objAmmo.getMotionState();
-                if ( ms ) {
+            }*/
+            function moveBall(characterPosition) {
+                // Déterminez le vecteur de déplacement de la boule par rapport à la position du personnage
+                let ballPosition = ballObject.position;
+                let displacementVector = characterPosition.clone().sub(ballPosition);
 
-                    ms.getWorldTransform( tmpTransformation );
-                    let p = tmpTransformation.getOrigin();
-                    let q = tmpTransformation.getRotation();
-                    objThree.position.set( p.x(), p.y(), p.z() );
-                    objThree.quaternion.set( q.x(), q.y(), q.z(), q.w() );
+                // Utilisez le vecteur de déplacement pour définir la vitesse linéaire de la boule
+                let scalingFactor = 20;
+                let resultantImpulse = new Ammo.btVector3(displacementVector.x, displacementVector.y, displacementVector.z);
+
+                if (resultantImpulse.length() > 1) {
+                    resultantImpulse.normalize();
+                }
+                resultantImpulse.op_mul(scalingFactor);
+
+                let physicsBody2 = ballObject.userData.physicsBody;
+                physicsBody2.setLinearVelocity(resultantImpulse);
+            }
+
+            function setupEventHandlers() {
+
+                window.addEventListener('keydown', handleKeyDown, false);
+                window.addEventListener('keyup', handleKeyUp, false);
+
+            }
+
+            function handleKeyDown(event) {
+
+                let keyCode = event.keyCode;
+
+                switch (keyCode) {
+
+                    case 90: //W: FORWARD
+                        moveDirection.forward += 1
+                        break;
+
+                    case 83: //S: BACK
+                        moveDirection.back += 1
+                        break;
+
+                    case 81: //A: LEFT
+                        moveDirection.left += 1
+                        break;
+
+                    case 68: //D: RIGHT
+                        moveDirection.right += 1
+                        break;
 
                 }
             }
 
-        }
 
+            function handleKeyUp(event) {
+                let keyCode = event.keyCode;
+
+                switch (keyCode) {
+                    case 90: //FORWARD
+                        moveDirection.forward = 0
+                        break;
+
+                    case 83: //BACK
+                        moveDirection.back = 0
+                        break;
+
+                    case 81: //LEFT
+                        moveDirection.left = 0
+                        break;
+
+                    case 68: //RIGHT
+                        moveDirection.right = 0
+                        break;
+
+                }
+
+            }
+
+
+            function updatePhysics(deltaTime) {
+                // Step world
+                if (physicsUniverse !== undefined) {
+                    physicsUniverse.stepSimulation(deltaTime, 10);
+                }
+
+                // Update rigid bodies
+                for (let i = 0; i < rigidBody_List.length; i++) {
+                    let objThree = rigidBody_List[i];
+                    let objAmmo = objThree.userData.physicsBody;
+                    let ms = objAmmo.getMotionState();
+                    if (ms) {
+
+                        ms.getWorldTransform(tmpTransformation);
+                        let p = tmpTransformation.getOrigin();
+                        let q = tmpTransformation.getRotation();
+                        objThree.position.set(p.x(), p.y(), p.z());
+                        objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
+
+                    }
+                }
+
+            }
+
+
+            function tick() {
+                // Render
+                const elapsedTime = clockElapse.getElapsedTime()
+
+                let mixerUpdateDelta = clockDelta.getDelta();
+
+                if (controls) {
+                    controls.update(mixerUpdateDelta, keysPressed);
+                    //this.controls.updatePhysics(); // Appeler updatePhysics sur l'instance de Character
+                }
+
+                if (controls) {
+                    controls.update(mixerUpdateDelta, keysPressed);
+                    //collision.position.copy(model.position);
+                    moveBall(controls.model.position);
+
+                    console.log(ballObject.position);
+                }
+
+
+                let deltaTime2 = clock.getDelta();
+
+                updatePhysics(deltaTime2);
+
+                orbitControls.update()
+
+                let deltaTime = clock.getDelta();
+                updatePhysicsUniverse(deltaTime);
+
+                config.renderer.render(config.scene, camera.camera);
+
+                // Call tick again on the next frame
+                window.requestAnimationFrame(tick)
+            }
+
+            tick();
+        }
 
 
     </script>

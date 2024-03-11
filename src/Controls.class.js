@@ -35,13 +35,13 @@ export class Controls {
     }
 
     down (key) {
-        if (key) {
+        if (key === "q" || key === "d" || key === "z" || key === "s") {
             document.querySelector("#touch"+key.toUpperCase()+">*").classList.add("svgChange");
         }
     }
 
     up (key) {
-        if (key) {
+        if (key === "q" || key === "d" || key === "z" || key === "s") {
             document.querySelector("#touch"+key.toUpperCase()+">*").classList.remove("svgChange");
         }
         else {
