@@ -38,8 +38,8 @@ export class Character {
 
         // constants
         this.fadeDuration = 0.1;
-        this.runVelocity = 1;
-        this.walkVelocity = 1;
+        this.runVelocity = 3;
+        this.walkVelocity = 3;
     }
 
     switchRunToggle() {
