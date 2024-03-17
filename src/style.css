@@ -1,7 +1,7 @@
 /* FONTS */
 @font-face {
     font-family: "Antraste";
-    src: url("./static/fonts/Antraste_ver2.ttf");
+    src: url("./fonts/Antraste_ver2.ttf");
 }
 
 *
@@ -101,4 +101,14 @@ body
     width: 600px;
     text-align: justify;
     color: #57260c;
+}
+
+/* POP UP*/
+.popUp {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: 12;
+    display: none;
+    background: white;
 }

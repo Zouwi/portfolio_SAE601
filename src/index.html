@@ -22,7 +22,6 @@
         const config = new Config();
         //const three = config.THREE();
         const camera = new Camera();
-
         //this.physics = new physicsUniverse();
         let collision = null;
 
@@ -90,7 +89,7 @@
         let animationsMap;
         let modelPosition;
         // Load 3D model and create player and controls
-        config.loader.load('./models/somali_cat.glb', function (gltf) {
+        config.loader.load('./models/SomaliCatNewMirror3.glb', function (gltf) {
             model = gltf.scene;
             model.scale.set(0.3, 0.3, 0.3);
             model.position.y = 0;
@@ -143,6 +142,138 @@
             keysPressed[event.key.toLowerCase()] = false;
         }, false);
 
+        /**DECOR **/
+            //Create a plane that is transparent but have borders
+        const geometry = new THREE.PlaneGeometry(4, 2, 32);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.5
+        });
+        const plane = new THREE.Mesh(geometry, material);
+        plane.position.x = -11;
+        plane.position.z = -8;
+        plane.position.y = 2;
+        plane.rotation.y = 0.7;
+        //config.scene.add(plane);
+
+        //Cube POUR PROJET avec une texture
+        const texture = config.textureLoader.load('./textures/projectPROG/portfolioSEM2.JPG');
+        const geometryCube = new THREE.BoxGeometry(1.3, 0.8, 0.2);
+        const materialCubeTexture = new THREE.MeshBasicMaterial({map: texture});
+        const materialCubeCouleur = new THREE.MeshBasicMaterial({color: 0xffffff});
+        const materialCube = [materialCubeCouleur, materialCubeCouleur, materialCubeCouleur, materialCubeCouleur, materialCubeTexture, materialCubeCouleur]
+        const cube = new THREE.Mesh(geometryCube, materialCube);
+        cube.position.x = 16.5;
+        cube.position.z = -16;
+        cube.position.y = 2;
+        cube.rotation.y = 149.3;
+
+        // Ajout d'un gestionnaire d'événements de clic
+        //cube.addEventListener('click', showPopup.bind(this));
+
+        config.scene.add(cube);
+
+        // window.addEventListener('load', function () {
+        //     /* popup QUI S'AFFICHE AU CLIQUE DU CUBE*/
+        //     cube.addEventListener('click', function(e) {
+        //         document.querySelector('.popUp').style.display = "block";
+        //     });
+        // });
+
+        // function handleKeyDown(event) {
+        //     // Vérifier si la touche "E" est enfoncée (par exemple)
+        //     if (event.key === 'e' || event.key === 'E') {
+        //         // Vérifier la position du joueur par rapport au cube
+        //         const distance = this.cube.position.distanceTo(this.config.camera.position);
+        //         if (distance < 5) { // Par exemple, si le joueur est à moins de 5 unités du cube
+        //             // Ouvrir la fenêtre pop-up
+        //             document.querySelector('.popUp').style.display = "block";
+        //         }
+        //     }
+        // }
+
+        function handleKeyDown(event) {
+
+            let keyCode = event.keyCode;
+
+            switch (keyCode) {
+
+                case 13: //W: FORWARD
+                    if (controls) {
+                        const distance = cube.position.distanceTo(controls.model.position);
+                        if (distance < 5) { // Par exemple, si le joueur est à moins de 5 unités du cube
+                            // Ouvrir la fenêtre pop-up
+                            document.querySelector('.popUp').style.display = "block";
+                        }
+                    }
+
+                    break;
+            }
+        }
+
+
+        function handleKeyUp(event) {
+            let keyCode = event.keyCode;
+
+            switch (keyCode) {
+                case 13: //FORWARD
+                    moveDirection.forward = 0
+                    break;
+            }
+
+        }
+
+
+        /** TEXTE **/
+        //DEVANT MONTAGNE
+        createText("Design", -11.3, 2.4, -7.3, 179.8);
+        createText("Developpement web", -9.5, 2.4, -9, 179.8);
+        createText("<=", -9.9, 1.8, -9, 179.8);
+        createText("=>", -11.5, 1.8, -7.3, 179.8);
+
+        //CHAMPIGNON
+        createText("Debut en BUT des Metiers du", -3.6, 3, -14.6, 149.6);
+        createText("Multimedia et de l'Internet", -3.6, 2.5, -14.6, 149.6);
+        createText("Septembre 2021", -3.6, 2, -14.6, 149.6);
+
+        createText("Mes differents projets", 16.5, 3, -16, 149.3);
+
+        let textMeshes = [];
+
+        let mesh = undefined;
+
+        function createText(text, posX, posY, posZ, rotY) {
+            config.font.load('./fonts/helvetiker_regular.typeface.json', (font) => {
+                const geometry = new TextGeometry(text, {
+                    font: font,
+                    depth: 0.2,
+                    size: 1.5,
+                    height: 2,
+                    curveSegments: 1,
+                    bevelEnabled: true,
+                    bevelThickness: 0,
+                    bevelSize: 0.05,
+                    bevelOffset: 0,
+                    bevelSegments: 2
+                });
+
+                const textMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, specular: 0xffffff});
+
+                const mesh = new THREE.Mesh(geometry, textMaterial);
+                mesh.position.set(posX, posY, posZ);
+                mesh.rotation.y = rotY;
+                mesh.scale.set(0.1, 0.1, 0.1);
+
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+
+                textMeshes.push({mesh: mesh, initialPosY: posY});
+                config.scene.add(mesh);
+            });
+        }
+
         /** Animate **/
         const clockElapse = new THREE.Clock();
         const clockDelta = new THREE.Clock();
@@ -150,6 +281,7 @@
 
         //**AMMOJS **//
         import Ammo from './ammo.js';
+        import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry.js";
 
         //VARIABLES GLOBALES
         let characterPosition = config.scene.getObjectById(1);
@@ -181,7 +313,7 @@
             initGraphicsUniverse();
             createBall();
             window.addEventListener('keydown', handleKeyDown, false);
-            window.addEventListener('keyup', handleKeyUp, false);
+            //window.addEventListener('keyup', handleKeyUp, false);
             //setupEventHandlers();
 
             // base
@@ -374,49 +506,49 @@
             createCube(1.4, new THREE.Vector3(-3.7, 0, 9.6), 0, null);
             createCube(1.4, new THREE.Vector3(-5.1, 0, 0.2), 0, null);
             createCube(1.4, new THREE.Vector3(-7.4, 0, 0.7), 0, null);
-            createCube(1.8, new THREE.Vector3(-3.7, 0,  11), 0, null);
-            createCube(1.8, new THREE.Vector3(-5, 0,  11), 0, null);
+            createCube(1.8, new THREE.Vector3(-3.7, 0, 11), 0, null);
+            createCube(1.8, new THREE.Vector3(-5, 0, 11), 0, null);
             createCube(5, new THREE.Vector3(-5, 0, 14.4), 0, null);
 
-            createCube(1.8, new THREE.Vector3(-4, 0,  5), 0, null);
-            createCube(3, new THREE.Vector3(-5.8, 0,  3), 0, null);
+            createCube(1.8, new THREE.Vector3(-4, 0, 5), 0, null);
+            createCube(3, new THREE.Vector3(-5.8, 0, 3), 0, null);
 
-            createCube(1.2, new THREE.Vector3(-8.5, 0,  2.8), 0, null);
+            createCube(1.2, new THREE.Vector3(-8.5, 0, 2.8), 0, null);
 
             //CRISTAUX
-            createCube(1.2, new THREE.Vector3(-8.9, 0,  12), 0, null);
-            createCube(1.2, new THREE.Vector3(-13.2, 0,  8.9), 0, null);
-            createCube(1.2, new THREE.Vector3(-17.3, 0,  7.9), 0, null);
-            createCube(1.8, new THREE.Vector3(-11.3, 0,  14.5), 0, null);
-            createCube(1.8, new THREE.Vector3(-18.5, 0,  17), 0, null);
-            createCube(1.2, new THREE.Vector3(-14.8, 0,  12.5), 0, null);
+            createCube(1.2, new THREE.Vector3(-8.9, 0, 12), 0, null);
+            createCube(1.2, new THREE.Vector3(-13.2, 0, 8.9), 0, null);
+            createCube(1.2, new THREE.Vector3(-17.3, 0, 7.9), 0, null);
+            createCube(1.8, new THREE.Vector3(-11.3, 0, 14.5), 0, null);
+            createCube(1.8, new THREE.Vector3(-18.5, 0, 17), 0, null);
+            createCube(1.2, new THREE.Vector3(-14.8, 0, 12.5), 0, null);
 
-            createCube(4, new THREE.Vector3(-14.6, 0,  14.8), 0, null);
-            createCube(1.4, new THREE.Vector3(-19.6, 0,  11), 0, null);
-            createCube(1.8, new THREE.Vector3(-19.7, 0,  9.1), 0, null);
-            createCube(2, new THREE.Vector3(-20.1, 0,  14.1), 0, null);
-            createCube(2.5, new THREE.Vector3(-20.7, 0,  6.7), 0, null);
-            createCube(1.2, new THREE.Vector3(-19.4, 0,  3.4), 0, null);
-            createCube(1.2, new THREE.Vector3(-18.9, 0,  1.8), 0, null);
-            createCube(1.2, new THREE.Vector3(-20.2, 0,  1), 0, null);
-            createCube(1.2, new THREE.Vector3(-20.1, 0,  4.5), 0, null);
-            createCube(1.4, new THREE.Vector3(-20.1, 0,  12.6), 0, null);
-            createCube(1.4, new THREE.Vector3(-12.5, 0,  -1.5), 0, null);
-            createCube(1.2, new THREE.Vector3(-13.6, 0,  -3.3), 0, null);
-            createCube(1.2, new THREE.Vector3(-20.3, 0,  -3.1), 0, null);
-            createCube(2, new THREE.Vector3(-21.4, 0,  -0.9), 0, null);
-            createCube(2, new THREE.Vector3(-21.4, 0,  -5.3), 0, null);
-            createCube(2, new THREE.Vector3(-21.4, 0,  -14.9), 0, null);
+            createCube(4, new THREE.Vector3(-14.6, 0, 14.8), 0, null);
+            createCube(1.4, new THREE.Vector3(-19.6, 0, 11), 0, null);
+            createCube(1.8, new THREE.Vector3(-19.7, 0, 9.1), 0, null);
+            createCube(2, new THREE.Vector3(-20.1, 0, 14.1), 0, null);
+            createCube(2.5, new THREE.Vector3(-20.7, 0, 6.7), 0, null);
+            createCube(1.2, new THREE.Vector3(-19.4, 0, 3.4), 0, null);
+            createCube(1.2, new THREE.Vector3(-18.9, 0, 1.8), 0, null);
+            createCube(1.2, new THREE.Vector3(-20.2, 0, 1), 0, null);
+            createCube(1.2, new THREE.Vector3(-20.1, 0, 4.5), 0, null);
+            createCube(1.4, new THREE.Vector3(-20.1, 0, 12.6), 0, null);
+            createCube(1.4, new THREE.Vector3(-12.5, 0, -1.5), 0, null);
+            createCube(1.2, new THREE.Vector3(-13.6, 0, -3.3), 0, null);
+            createCube(1.2, new THREE.Vector3(-20.3, 0, -3.1), 0, null);
+            createCube(2, new THREE.Vector3(-21.4, 0, -0.9), 0, null);
+            createCube(2, new THREE.Vector3(-21.4, 0, -5.3), 0, null);
+            createCube(2, new THREE.Vector3(-21.4, 0, -14.9), 0, null);
 
-            createCube(4, new THREE.Vector3(-18.7, 0,  -9.6), 0, null);
-            createCube(1.3, new THREE.Vector3(-20.2, 0,  -7.4), 0, null);
-            createCube(2.5, new THREE.Vector3(-17.9, 0,  -12), 0, null);
-            createCube(1.5, new THREE.Vector3(-19.9, 0,  -13.4), 0, null);
-            createCube(1.5, new THREE.Vector3(-17.4, 0,  -13.1), 0, null);
+            createCube(4, new THREE.Vector3(-18.7, 0, -9.6), 0, null);
+            createCube(1.3, new THREE.Vector3(-20.2, 0, -7.4), 0, null);
+            createCube(2.5, new THREE.Vector3(-17.9, 0, -12), 0, null);
+            createCube(1.5, new THREE.Vector3(-19.9, 0, -13.4), 0, null);
+            createCube(1.5, new THREE.Vector3(-17.4, 0, -13.1), 0, null);
             //PUIT
-            createCube(1.6, new THREE.Vector3(-16.8, 0,  -0.7), 0, null);
+            createCube(1.6, new THREE.Vector3(-16.8, 0, -0.7), 0, null);
             //CARAVANE
-            createCube(4, new THREE.Vector3(-10.9, 0,  2.2), 0, null);
+            createCube(4, new THREE.Vector3(-10.9, 0, 2.2), 0, null);
 
             //MUR CRISTAUX
             createCube(6, new THREE.Vector3(-10, 0, 19.5), 0, null);
@@ -649,56 +781,6 @@
 
             }
 
-            function handleKeyDown(event) {
-
-                let keyCode = event.keyCode;
-
-                switch (keyCode) {
-
-                    case 90: //W: FORWARD
-                        moveDirection.forward += 1
-                        break;
-
-                    case 83: //S: BACK
-                        moveDirection.back += 1
-                        break;
-
-                    case 81: //A: LEFT
-                        moveDirection.left += 1
-                        break;
-
-                    case 68: //D: RIGHT
-                        moveDirection.right += 1
-                        break;
-
-                }
-            }
-
-
-            function handleKeyUp(event) {
-                let keyCode = event.keyCode;
-
-                switch (keyCode) {
-                    case 90: //FORWARD
-                        moveDirection.forward = 0
-                        break;
-
-                    case 83: //BACK
-                        moveDirection.back = 0
-                        break;
-
-                    case 81: //LEFT
-                        moveDirection.left = 0
-                        break;
-
-                    case 68: //RIGHT
-                        moveDirection.right = 0
-                        break;
-
-                }
-
-            }
-
 
             function updatePhysics(deltaTime) {
                 // Step world
@@ -757,6 +839,11 @@
                 let deltaTime = clock.getDelta();
                 updatePhysicsUniverse(deltaTime);
 
+                //ANIMATION TEXTE MESH DE HAUT EN BAS
+                textMeshes.forEach(({mesh, initialPosY}) => {
+                    mesh.position.y = initialPosY + Math.sin(elapsedTime) * 0.1;
+                });
+
                 config.renderer.render(config.scene, camera.camera);
 
                 // Call tick again on the next frame
@@ -765,8 +852,6 @@
 
             tick();
         }
-
-
     </script>
 </head>
 <body>
@@ -810,6 +895,9 @@
         <path d="M86.4375 117H69.6051V62.4545H87.1832C92.4744 62.4545 97.0021 63.5465 100.766 65.7305C104.531 67.8967 107.416 71.0128 109.422 75.0788C111.429 79.1271 112.432 83.9744 112.432 89.6207C112.432 95.3026 111.42 100.194 109.396 104.296C107.371 108.38 104.424 111.522 100.553 113.724C96.6825 115.908 91.9773 117 86.4375 117ZM76.2102 111.141H86.0114C90.5213 111.141 94.2589 110.271 97.2241 108.531C100.189 106.79 102.4 104.314 103.856 101.1C105.312 97.886 106.04 94.0597 106.04 89.6207C106.04 85.2173 105.321 81.4265 103.882 78.2482C102.444 75.0522 100.296 72.6019 97.4371 70.8974C94.5785 69.1751 91.0185 68.3139 86.7571 68.3139H76.2102V111.141Z"
               fill="white"/>
     </svg>
+</div>
+<div class="popUp">
+    Coucou
 </div>
 <canvas class="webgl"></canvas>
 <script type="module" src="main.js"></script>

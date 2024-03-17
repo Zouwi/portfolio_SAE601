@@ -120,21 +120,21 @@ export class Character {
 
         if (keysPressed[Z]) {
             if (keysPressed[Q]) {
-                directionOffset = -Math.PI / 4; // z+q
+                directionOffset = Math.PI / 4; // z+q
             } else if (keysPressed[D]) {
-                directionOffset = Math.PI / 4; // z+d
+                directionOffset = -Math.PI / 4; // z+d
             }
         } else if (keysPressed[S]) {
             if (keysPressed[Q]) {
-                directionOffset = -Math.PI / 4 + Math.PI / 2; // s+q
+                directionOffset = Math.PI / -4 + -Math.PI / 2; // s+q
             } else if (keysPressed[D]) {
-                directionOffset = Math.PI / 4 - Math.PI / 2; // s+d
+                directionOffset = -Math.PI / -4 - Math.PI / 2; // s+d
             } else {
                 directionOffset = Math.PI; // s
             }
-        } else if (keysPressed[Q]) {
-            directionOffset = -Math.PI / 2; // q
         } else if (keysPressed[D]) {
+            directionOffset = -Math.PI / 2; // q
+        } else if (keysPressed[Q]) {
             directionOffset = Math.PI / 2; // d
         }
 
