@@ -158,59 +158,78 @@
         plane.rotation.y = 0.7;
         //config.scene.add(plane);
 
-        //Cube POUR PROJET avec une texture
-        const texture = config.textureLoader.load('./textures/projectPROG/portfolioSEM2.JPG');
-        const geometryCube = new THREE.BoxGeometry(1.3, 0.8, 0.2);
-        const materialCubeTexture = new THREE.MeshBasicMaterial({map: texture});
-        const materialCubeCouleur = new THREE.MeshBasicMaterial({color: 0xffffff});
-        const materialCube = [materialCubeCouleur, materialCubeCouleur, materialCubeCouleur, materialCubeCouleur, materialCubeTexture, materialCubeCouleur]
-        const cube = new THREE.Mesh(geometryCube, materialCube);
-        cube.position.x = 16.5;
-        cube.position.z = -16;
-        cube.position.y = 2;
-        cube.rotation.y = 149.3;
+        // Création d'un tableau pour stocker les cubes
+        const cubes = [];
 
-        // Ajout d'un gestionnaire d'événements de clic
-        //cube.addEventListener('click', showPopup.bind(this));
+        function createProjet(posX, posY, posZ, rotY, texture, popUpId) {
+            const geometryCube = new THREE.BoxGeometry(1.3, 0.8, 0.2);
+            const materialCubeTexture = new THREE.MeshBasicMaterial({ map: texture });
+            const materialCubeCouleur = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const materialCube = [materialCubeCouleur, materialCubeCouleur, materialCubeCouleur, materialCubeCouleur, materialCubeTexture, materialCubeCouleur];
+            const cube = new THREE.Mesh(geometryCube, materialCube);
+            cube.position.set(posX, posY, posZ);
+            cube.rotation.y = rotY;
 
-        config.scene.add(cube);
+            config.scene.add(cube);
+            cubes.push({ cube: cube, popUpId: popUpId, initialPosY: posY }); // Ajout du cube et de son identifiant au tableau
+        }
 
-        // window.addEventListener('load', function () {
-        //     /* popup QUI S'AFFICHE AU CLIQUE DU CUBE*/
-        //     cube.addEventListener('click', function(e) {
-        //         document.querySelector('.popUp').style.display = "block";
-        //     });
-        // });
+        // Création des cubes avec leurs textures respectives
+        const texture1 = config.textureLoader.load('./textures/projectPROG/portfolioSEM2.JPG');
+        createProjet(16.4, 2, -17, 149.3, texture1, 1);
 
-        // function handleKeyDown(event) {
-        //     // Vérifier si la touche "E" est enfoncée (par exemple)
-        //     if (event.key === 'e' || event.key === 'E') {
-        //         // Vérifier la position du joueur par rapport au cube
-        //         const distance = this.cube.position.distanceTo(this.config.camera.position);
-        //         if (distance < 5) { // Par exemple, si le joueur est à moins de 5 unités du cube
-        //             // Ouvrir la fenêtre pop-up
-        //             document.querySelector('.popUp').style.display = "block";
-        //         }
-        //     }
-        // }
+        const texture2 = config.textureLoader.load('./textures/projectPROG/retroRococo.JPG');
+        createProjet(16.5, 2, -14.5, 149.3, texture2, 2);
 
-        function handleKeyDown(event) {
+        // Gestionnaire d'événements clavier pour tous les cubes
+        document.addEventListener('keydown', function(event) {
+            cubes.forEach(cubeObj => {
+                handleKeyDown(event, cubeObj);
+            });
+        });
 
-            let keyCode = event.keyCode;
-
-            switch (keyCode) {
-
-                case 13: //W: FORWARD
-                    if (controls) {
-                        const distance = cube.position.distanceTo(controls.model.position);
-                        if (distance < 5) { // Par exemple, si le joueur est à moins de 5 unités du cube
-                            // Ouvrir la fenêtre pop-up
-                            document.querySelector('.popUp').style.display = "block";
-                        }
-                    }
-
-                    break;
+        // Fonction pour gérer les interactions clavier avec un cube spécifique
+        function handleKeyDown(event, cubeObj) {
+            if (!cubeObj) {
+                return; // Sortie de la fonction si cubeObj est undefined
             }
+            let keyCode = event.keyCode;
+            const cube = cubeObj.cube;
+            const popUpId = cubeObj.popUpId;
+
+            if (controls && cube) {
+                const distance = cube.position.distanceTo(controls.model.position);
+                if (distance < 2) {
+                    switch (keyCode) {
+                        case 13: // Touche entrée (par exemple)
+                            displayPopUp(popUpId);
+                            break;
+                    }
+                } else {
+                    hideAllPopUps(popUpId); // Masquer tous les pop-ups si le joueur n'est pas à proximité d'un cube
+                }
+            }
+        }
+
+        // Fonction pour afficher un pop-up spécifique
+        function displayPopUp(popUpId) {
+            hideAllPopUps(); // Masquer tous les pop-ups d'abord
+            document.querySelector('.bigPopUp'+popUpId).style.display = "grid";
+            document.querySelectorAll('.croix').forEach(e =>
+            e.addEventListener('click', function(){
+                hideAllPopUps(popUpId);
+            }))
+
+            addEventListener('click', function() {
+                hideAllPopUps(); // Masquer tous les pop-ups lorsque l'utilisateur clique sur la croix
+            });
+        }
+
+        // Fonction pour masquer tous les pop-ups
+        function hideAllPopUps(popUpId) {
+            document.querySelectorAll('.bigPopUp' + popUpId).forEach(popUp => {
+                popUp.style.display = "none";
+            });
         }
 
 
@@ -238,7 +257,12 @@
         createText("Multimedia et de l'Internet", -3.6, 2.5, -14.6, 149.6);
         createText("Septembre 2021", -3.6, 2, -14.6, 149.6);
 
-        createText("Mes differents projets", 16.5, 3, -16, 149.3);
+        createText("Mes differents projets", 16.5, 3, -16.8, 149.3);
+
+        //PUITS
+        createText("Bac en Sciences et Technologies", -15.5, 2, -2, 178.8);
+        createText("du Design et des Arts Appliques", -15.5, 1.5, -2, 178.8);
+        createText("obtenu en 2021", -16.4, 1, -2, 178.8);
 
         let textMeshes = [];
 
@@ -844,6 +868,11 @@
                     mesh.position.y = initialPosY + Math.sin(elapsedTime) * 0.1;
                 });
 
+                //ANIMATION CUBE DE HAUT EN BAS
+                cubes.forEach(({cube, initialPosY}) => {
+                    cube.position.y = initialPosY + Math.sin(elapsedTime) * 0.1;
+                });
+
                 config.renderer.render(config.scene, camera.camera);
 
                 // Call tick again on the next frame
@@ -896,9 +925,39 @@
               fill="white"/>
     </svg>
 </div>
-<div class="popUp">
-    Coucou
+<div class="bigPopUp1">
+    <div class="popUp">
+        <div class="croix">x</div>
+        <div class="title" style="margin-bottom: 100px; text-align: left">Portfolio 2022</div>
+            <div class="popFlex">
+                <div class="textPop">Mon site de la fin de ma première année dans le BUT MMI. Ce site contient les
+                    informations ainsi que les travaux des SAE. Ce sont des projets que j'ai réalisé en première et
+                    deuxième année de BUT et complétés avec avec mes acquis.
+                    <br><br>
+                    Ce portfolio m'a surtout permis de programmer en PHP et ainsi de récupérer les informations d'une
+                    base de données sur PhpMyAdmin. J'ai également utilisé des langages comme le HTML, CSS et JavaScript
+                    pour la mise en page et l'animation du site.
+                </div>
+                <img width="800" src="./textures/projectPROG/portfolioSEM2.JPG" alt="portfolio2022">
+            </div>
+        <div class="btnPop"><a href="">Aller sur le site</a></div>
+    </div>
 </div>
+<div class="bigPopUp2">
+    <div class="popUp">
+        <div class="croix">x</div>
+        <div class="title" style="margin-bottom: 100px; text-align: left">Retro Rococo</div>
+        <div class="popFlex">
+            <div class="textPop">Retro Rococo est un site web réalisé en troisième et dernière année de BUT MMI. Ce site a été fait en groupe de 2 personnes, et à pour but d'être un site d'e-commerce.
+                <br><br>
+                Ce site d'e-commerce a été fait sur Prestashop et possède plusieurs fonctionnalités tel qu'une IA générative de produits  et de recommandations, un chat en temps réel fait avec Node.JS et l'utilisation de Three.JS pour la 3D.
+            </div>
+            <img width="800" src="./textures/projectPROG/retroRococo.JPG" alt="retro_rococo">
+        </div>
+        <div class="btnPop"><a href="">Aller sur le site</a></div>
+    </div>
+</div>
+
 <canvas class="webgl"></canvas>
 <script type="module" src="main.js"></script>
 </body>
