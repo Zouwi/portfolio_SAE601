@@ -28,18 +28,7 @@
         let controls = null;
 
         /** ENVIRONMENT **/
-        let scene3D;
-        config.JSONloader.load('./scene/sceneFINAL.json', function (gltf) {
-            console.log(gltf);
-            scene3D = gltf;
-            scene3D.scale.set(1, 1, 1);
-            scene3D.position.y = 0;
-            scene3D.position.x = 0;
-            scene3D.position.z = 0;
-            //config.scene.add(scene3D);
-
-        });
-        config.loader.load('./scene/sceneNOLIGHT.glb', function (gltf) {
+        config.loader.load('./scene/sceneLIGHT.glb', function (gltf) {
             const model = gltf.scene;
             model.scale.set(1, 1, 1);
             model.position.y = 0;
@@ -87,7 +76,6 @@
         let mixer;
         let model;
         let animationsMap;
-        let modelPosition;
         // Load 3D model and create player and controls
         config.loader.load('./models/SomaliCatNewMirror3.glb', function (gltf) {
             model = gltf.scene;
@@ -96,8 +84,7 @@
             model.position.x = -18;
             model.position.z = -17;
             model.traverse(function (object) {
-                if (object.isMesh) object.castShadow = true;
-                if (object.isMesh) object.receiveShadow = true;
+                if (object instanceof THREE.Mesh) object.receiveShadow = true;
             });
             config.scene.add(model);
 
@@ -175,11 +162,29 @@
         }
 
         // Création des cubes avec leurs textures respectives
+        //CHAMPIGNON
         const texture1 = config.textureLoader.load('./textures/projectPROG/portfolioSEM2.JPG');
         createProjet(16.4, 2, -17, 149.3, texture1, 1);
 
         const texture2 = config.textureLoader.load('./textures/projectPROG/retroRococo.JPG');
         createProjet(16.5, 2, -14.5, 149.3, texture2, 2);
+
+        //PUITS / ARBRES
+        const texture3 = config.textureLoader.load('./textures/projectCREA/julietteZOOM.jpg');
+        createProjet(-17.4, 1.8, 8, 178.9, texture3, 3);
+
+        const texture4 = config.textureLoader.load('./textures/projectCREA/seishi.png');
+        createProjet(-13.1, 1.8, 8.8, 179, texture4, 4);
+
+        const texture5 = config.textureLoader.load('./textures/projectCREA/サムライ.jpg');
+        createProjet(-18.3, 1.8, 16.8, 179, texture5, 5);
+
+        const texture6 = config.textureLoader.load('./textures/projectCREA/affichefinalZOOM.jpg');
+        createProjet(-8.9, 1.8, 12, 179, texture6, 6);
+
+        //RUINES
+        const texture7 = config.textureLoader.load('./textures/projectPROG/webDesign.jpg');
+        createProjet(11.6, 1.4, 12.4, 179.3, texture7, 7);
 
         // Gestionnaire d'événements clavier pour tous les cubes
         document.addEventListener('keydown', function(event) {
@@ -206,14 +211,14 @@
                             break;
                     }
                 } else {
-                    hideAllPopUps(popUpId); // Masquer tous les pop-ups si le joueur n'est pas à proximité d'un cube
+                    hideAllPopUps(popUpId); // Masquer tous les popups si le joueur n'est pas à proximité d'un cube
                 }
             }
         }
 
         // Fonction pour afficher un pop-up spécifique
         function displayPopUp(popUpId) {
-            hideAllPopUps(); // Masquer tous les pop-ups d'abord
+            hideAllPopUps(); // Masquer tous les popups d'abord
             document.querySelector('.bigPopUp'+popUpId).style.display = "grid";
             document.querySelectorAll('.croix').forEach(e =>
             e.addEventListener('click', function(){
@@ -221,29 +226,16 @@
             }))
 
             addEventListener('click', function() {
-                hideAllPopUps(); // Masquer tous les pop-ups lorsque l'utilisateur clique sur la croix
+                hideAllPopUps(); // Masquer tous les popups lorsque l'utilisateur clique sur la croix
             });
         }
 
-        // Fonction pour masquer tous les pop-ups
+        // Fonction pour masquer tous les popps
         function hideAllPopUps(popUpId) {
             document.querySelectorAll('.bigPopUp' + popUpId).forEach(popUp => {
                 popUp.style.display = "none";
             });
         }
-
-
-        function handleKeyUp(event) {
-            let keyCode = event.keyCode;
-
-            switch (keyCode) {
-                case 13: //FORWARD
-                    moveDirection.forward = 0
-                    break;
-            }
-
-        }
-
 
         /** TEXTE **/
         //DEVANT MONTAGNE
@@ -263,6 +255,12 @@
         createText("Bac en Sciences et Technologies", -15.5, 2, -2, 178.8);
         createText("du Design et des Arts Appliques", -15.5, 1.5, -2, 178.8);
         createText("obtenu en 2021", -16.4, 1, -2, 178.8);
+
+        //ARBRES
+        createText("Mes projets personnels", -14.5, 2, 13.2, 179);
+
+        //RUINES
+        createText("Un melange de passions", 13, 2.2, 12.4, 179.3);
 
         let textMeshes = [];
 
@@ -301,14 +299,12 @@
         /** Animate **/
         const clockElapse = new THREE.Clock();
         const clockDelta = new THREE.Clock();
-        const clockCollision = new THREE.Clock();
 
         //**AMMOJS **//
         import Ammo from './ammo.js';
         import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry.js";
 
         //VARIABLES GLOBALES
-        let characterPosition = config.scene.getObjectById(1);
         let tmpTransformation = undefined;
         let clock = new THREE.Clock();
         // Three.js
@@ -320,7 +316,7 @@
         let vecteur = null;
         let moveX = 0, moveY = 0, moveZ = 0;
 
-        let ballObject = null, moveDirection = {left: 0, right: 0, forward: 0, back: 0}
+        let ballObject = null;
 
         const STATE = {DISABLE_DEACTIVATION: 4}
 
@@ -608,16 +604,21 @@
                 document.body.appendChild(renderer.domElement);
 
                 //light
-                let ambientLight = new THREE.AmbientLight(0xcccccc, 0.2);
-                config.scene.add(ambientLight);
-                let directionalLight = new THREE.DirectionalLight(0xffffff, 5.6);
+                // Définir la couleur en HSL
+                const hue = 30; // Teinte pour l'orange (30 degrés)
+                const saturation = 80; // Saturation pour une couleur vive
+                const lightness = 80; // Luminosité pour une couleur lumineuse
+
+                // Convertir HSL en RGB
+                const rgbColor = new THREE.Color().setHSL(hue / 360, saturation / 100, lightness / 100);
+                let directionalLight = new THREE.DirectionalLight(rgbColor, 1);
                 directionalLight.position.set(-1, 0.9, 0.4);
                 config.scene.add(directionalLight);
             }
 
 
             function createCube(scale, position, mass, rot_quaternion) {
-                let quaternion = undefined;
+                let quaternion;
                 if (rot_quaternion == null) {
                     quaternion = {x: 0, y: 0, z: 0, w: 1};
                 } else {
@@ -765,7 +766,7 @@
                     if (checkCollision(ballObject, cubePhysicsBody)) {
                         // Si une collision est détectée, arrêtez le mouvement de la boule
                         physicsBody2.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
-                        break; // Sortez de la boucle car une collision a déjà été détectée
+                        break; // Sortez de la boucle, car une collision a déjà été détectée
                     }
                 }
             }
@@ -797,14 +798,6 @@
 
                 return false; // Pas de collision détectée
             }
-
-            function setupEventHandlers() {
-
-                window.addEventListener('keydown', handleKeyDown, false);
-                window.addEventListener('keyup', handleKeyUp, false);
-
-            }
-
 
             function updatePhysics(deltaTime) {
                 // Step world
@@ -931,8 +924,8 @@
         <div class="title" style="margin-bottom: 100px; text-align: left">Portfolio 2022</div>
             <div class="popFlex">
                 <div class="textPop">Mon site de la fin de ma première année dans le BUT MMI. Ce site contient les
-                    informations ainsi que les travaux des SAE. Ce sont des projets que j'ai réalisé en première et
-                    deuxième année de BUT et complétés avec avec mes acquis.
+                    informations ainsi que les travaux des SAE. C'est des projets que j'ai réalisés en première et
+                    deuxième année de BUT et complétés avec mes acquis.
                     <br><br>
                     Ce portfolio m'a surtout permis de programmer en PHP et ainsi de récupérer les informations d'une
                     base de données sur PhpMyAdmin. J'ai également utilisé des langages comme le HTML, CSS et JavaScript
@@ -940,7 +933,7 @@
                 </div>
                 <img width="800" src="./textures/projectPROG/portfolioSEM2.JPG" alt="portfolio2022">
             </div>
-        <div class="btnPop"><a href="">Aller sur le site</a></div>
+        <div class="btnPop"><a href="https://portfolio-gabet-2022.netlify.app/">Aller sur le site</a></div>
     </div>
 </div>
 <div class="bigPopUp2">
@@ -948,13 +941,72 @@
         <div class="croix">x</div>
         <div class="title" style="margin-bottom: 100px; text-align: left">Retro Rococo</div>
         <div class="popFlex">
-            <div class="textPop">Retro Rococo est un site web réalisé en troisième et dernière année de BUT MMI. Ce site a été fait en groupe de 2 personnes, et à pour but d'être un site d'e-commerce.
+            <div class="textPop">Retro Rococo est un site web réalisé en troisième et dernière année de BUT MMI. Ce site a été fait en groupe de 2 personnes, et a pour but d'être un site d'e-commerce.
                 <br><br>
-                Ce site d'e-commerce a été fait sur Prestashop et possède plusieurs fonctionnalités tel qu'une IA générative de produits  et de recommandations, un chat en temps réel fait avec Node.JS et l'utilisation de Three.JS pour la 3D.
+                Ce site d'e-commerce a été fait sur Prestashop et possède plusieurs fonctionnalités telles qu'une IA générative de produits et de recommandations, un chat en temps réel fait avec Node.JS et l'utilisation de Three.JS pour la 3D.
             </div>
             <img width="800" src="./textures/projectPROG/retroRococo.JPG" alt="retro_rococo">
         </div>
-        <div class="btnPop"><a href="">Aller sur le site</a></div>
+        <div class="btnPop"><a href="https://shop.iutmulhouse.fr">Aller sur le site</a></div>
+    </div>
+</div>
+<div class="bigPopUp3">
+    <div class="popUp">
+        <div class="croix">x</div>
+        <div class="title" style="margin-bottom: 100px; text-align: left">Affiche Juliette Oberndorfer</div>
+        <div class="popFlex">
+            <div class="textPop">Cette affiche a été faite lors de mon temps libre et représente les différentes illustrations de Juliette Oberndorfer. Ces illustrations colorées m'ont beaucoup inspirées et j'ai donc décidé de les mettre en avant sur une affiche.
+                <br><br>
+                Comme pour mes autres projets, cela a été réalisé avec Adobe Photoshop.
+            </div>
+            <img width="600" src="./textures/projectCREA/juliette.jpg" alt="juliette">
+        </div>
+    </div>
+</div>
+<div class="bigPopUp4">
+    <div class="popUp">
+        <div class="croix">x</div>
+        <div class="title" style="margin-bottom: 100px; text-align: left">Affiche Seishi</div>
+            <div class="textPop" style="margin-bottom: 30px">Cette affiche ou plutôt création, a été faite pour un concours amical sur un blog passé. Le but est tout simplement de créer une création "la plus belle" dans un thème choisi.
+                <br><br>
+                Ce projet a été réalisé sur Photofiltre, un logiciel semblable à Photoshop mais plus simple d'utilisation. Cette création a été faite avec de la superposition de textures et de couleurs tout en jouant avec les différents modes de fusion proposés par le logiciel.
+            </div>
+            <img width="1200" src="./textures/projectCREA/seishi.png" alt="seishi">
+    </div>
+</div>
+<div class="bigPopUp6">
+    <div class="popUp">
+        <div class="croix">x</div>
+        <div class="title" style="margin-bottom: 100px; text-align: left">Affiche Skyte</div>
+        <div class="popFlex">
+            <div class="textPop">Cette affiche a été réalisé pour un projet SAE de première année du BUT MMI. La consigne était de faire un véhicule individuel écologique en créant tout un dossier de conception ainsi que le dossier de communication. J'ai conçu cette affiche pour promouvoir le véhicule de mon groupe qui est le Skyte. J'ai, de plus, réalisé le logo de la marque présent sur l'affiche.
+                <br><br>
+                Affiche réalisée avec Adobe Photoshop, ainsi que Illustrator pour le logo.
+            </div>
+            <img width="600" src="./textures/projectCREA/affichefinalfinal.jpg" alt="skyte">
+        </div>
+    </div>
+</div>
+<div class="bigPopUp5">
+    <div class="popUp">
+        <div class="croix">x</div>
+        <div class="title" style="margin-bottom: 100px; text-align: left">Affiche サムライ</div>
+        <div class="textPop" style="margin-bottom: 30px">Ceci est une autre création réalisée dans mon temps libre. J'ai fait énormement de création de ce genre pour tout simplement tester des techniques et des styles différents. Car chaque texture superposée a un rendu différent en fonction du mode de fusion utilisé.
+            <br><br>
+            De la même manière que la création Seshi, cela a été fait avec de la superposition de textures et couleurs sur PhotoShop.
+        </div>
+        <img width="1200" src="./textures/projectCREA/サムライ.jpg" alt="japonais">
+    </div>
+</div>
+<div class="bigPopUp7">
+    <div class="popUp">
+        <div class="croix">x</div>
+        <div class="title" style="margin-bottom: 100px; text-align: left">Le web design</div>
+        <div class="textPop" style="margin-bottom: 30px">Avec mon bac en arts appliqués et prochainement mon diplôme en BUT MMI, je souhaite mélanger ces deux compétences pour créer des projets à mon image.
+            <br><br>
+            Le site sur lequel vous naviguez reflète mon univers ainsi que mes acquis en web design. Mon but est de créer et imaginer des sites web inoubliables tout en gardant une simplicité d'utilisation en UI et UX.
+        </div>
+        <img width="800" src="./textures/projectCREA/zuwi.jpg" alt="moi">
     </div>
 </div>
 
