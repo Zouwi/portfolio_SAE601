@@ -11,6 +11,12 @@
           rel="stylesheet">
 
     <script type="module">
+        //** CHARGEMENT **//
+        //page de chargement qui disparait au bout de 15 secondes
+        setTimeout(function () {
+            document.querySelector('.chargement').style.display = "none";
+        }, 15000);
+
         //** INIT **//
         import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
         import Config from './Config.class.js';
@@ -877,6 +883,7 @@
     </script>
 </head>
 <body>
+<div class="chargement"><div class="textCharg">Chargement...</div></div>
 <div class="start">
     <div class="texteStart">
         <div class="title">Un zeste d'éclat</div>
