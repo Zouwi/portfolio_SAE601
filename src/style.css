@@ -1,7 +1,7 @@
 /* FONTS */
 @font-face {
     font-family: "Antraste";
-    src: url("./fonts/Antraste_ver2.ttf");
+    src: url("../fonts/Antraste_ver2.ttf");
 }
 
 *
@@ -14,6 +14,22 @@ html,
 body
 {
     overflow: hidden;
+    scrollbar-width: thin; /* "auto" or "thin" */
+    scrollbar-color: #57260c transparent; /* scroll thumb and track */
+}
+
+/*Scroll bar*/
+body::-webkit-scrollbar {
+    width: 12px; /* width of the entire scrollbar */
+}
+
+body::-webkit-scrollbar-track {
+    background: none; /* color of the tracking area */
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: #57260c; /* color of the scroll thumb */
+    border-radius: 20px; /* roundness of the scroll thumb */
 }
 
 .webgl
@@ -45,6 +61,13 @@ body
 
 #touchQ {
     grid-column: 2/1;
+}
+
+.entrer {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 10;
 }
 
 /* Bouton START*/
@@ -117,11 +140,12 @@ div[class*="bigPopUp"] {
 .popUp {
     width: 80%;
     height: 80%;
-    background: rgba(255, 255, 255, 0.71);
+    background: rgba(255, 255, 255, 0.81);
     padding: 30px;
     margin: auto;
     border-radius: 20px;
     text-align: center;
+    overflow-y: scroll;
 }
 
 .croix {
@@ -145,11 +169,11 @@ div[class*="bigPopUp"] {
 }
 
 .popFlex {
-    display: grid;
-    grid-template-columns: auto 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 50px;
-    align-items: start;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: center;
 }
 
 .textPop {
@@ -181,6 +205,13 @@ div[class*="bigPopUp"] {
     font-size: 40pt;
     color: #ea7443;
     font-family: Antraste;
+}
+
+.imgPres {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 15px;
 }
 
 /** PAGE CHARGEMENT **/

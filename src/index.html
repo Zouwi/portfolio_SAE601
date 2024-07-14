@@ -156,24 +156,30 @@
 
         function createProjet(posX, posY, posZ, rotY, texture, popUpId) {
             const geometryCube = new THREE.BoxGeometry(1.3, 0.8, 0.2);
-            const materialCubeTexture = new THREE.MeshBasicMaterial({ map: texture });
-            const materialCubeCouleur = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const materialCubeTexture = new THREE.MeshBasicMaterial({map: texture});
+            const materialCubeCouleur = new THREE.MeshBasicMaterial({color: 0xffffff});
             const materialCube = [materialCubeCouleur, materialCubeCouleur, materialCubeCouleur, materialCubeCouleur, materialCubeTexture, materialCubeCouleur];
             const cube = new THREE.Mesh(geometryCube, materialCube);
             cube.position.set(posX, posY, posZ);
             cube.rotation.y = rotY;
 
             config.scene.add(cube);
-            cubes.push({ cube: cube, popUpId: popUpId, initialPosY: posY }); // Ajout du cube et de son identifiant au tableau
+            cubes.push({cube: cube, popUpId: popUpId, initialPosY: posY}); // Ajout du cube et de son identifiant au tableau
         }
 
         // Création des cubes avec leurs textures respectives
         //CHAMPIGNON
-        const texture1 = config.textureLoader.load('./textures/projectPROG/portfolioSEM2.JPG');
+        const texture1 = config.textureLoader.load('./textures/projectPROG/fabricae2.JPG');
         createProjet(16.4, 2, -17, 149.3, texture1, 1);
 
         const texture2 = config.textureLoader.load('./textures/projectPROG/retroRococo.JPG');
         createProjet(16.5, 2, -14.5, 149.3, texture2, 2);
+
+        const texture8 = config.textureLoader.load('./textures/projectPROG/creaDemande-travaux.jpg');
+        createProjet(9.5, 2, -17.7, 119.3, texture8, 8);
+
+        const texture9 = config.textureLoader.load('./textures/projectPROG/figma.jpg');
+        createProjet(12, 2, -17.5, 119.3, texture9, 9);
 
         //PUITS / ARBRES
         const texture3 = config.textureLoader.load('./textures/projectCREA/julietteZOOM.jpg');
@@ -182,10 +188,7 @@
         const texture4 = config.textureLoader.load('./textures/projectCREA/seishi.png');
         createProjet(-13.1, 1.8, 8.8, 179, texture4, 4);
 
-        const texture5 = config.textureLoader.load('./textures/projectCREA/サムライ.jpg');
-        createProjet(-18.3, 1.8, 16.8, 179, texture5, 5);
-
-        const texture6 = config.textureLoader.load('./textures/projectCREA/affichefinalZOOM.jpg');
+        const texture6 = config.textureLoader.load('./textures/projectCREA/std2a.JPG');
         createProjet(-8.9, 1.8, 12, 179, texture6, 6);
 
         //RUINES
@@ -193,7 +196,7 @@
         createProjet(11.6, 1.4, 12.4, 179.3, texture7, 7);
 
         // Gestionnaire d'événements clavier pour tous les cubes
-        document.addEventListener('keydown', function(event) {
+        document.addEventListener('keydown', function (event) {
             cubes.forEach(cubeObj => {
                 handleKeyDown(event, cubeObj);
             });
@@ -225,13 +228,13 @@
         // Fonction pour afficher un pop-up spécifique
         function displayPopUp(popUpId) {
             hideAllPopUps(); // Masquer tous les popups d'abord
-            document.querySelector('.bigPopUp'+popUpId).style.display = "grid";
+            document.querySelector('.bigPopUp' + popUpId).style.display = "grid";
             document.querySelectorAll('.croix').forEach(e =>
-            e.addEventListener('click', function(){
-                hideAllPopUps(popUpId);
-            }))
+                e.addEventListener('click', function () {
+                    hideAllPopUps(popUpId);
+                }))
 
-            addEventListener('click', function() {
+            addEventListener('click', function () {
                 hideAllPopUps(); // Masquer tous les popups lorsque l'utilisateur clique sur la croix
             });
         }
@@ -253,9 +256,10 @@
         //CHAMPIGNON
         createText("Debut en BUT des Metiers du", -3.6, 3, -14.6, 149.6);
         createText("Multimedia et de l'Internet", -3.6, 2.5, -14.6, 149.6);
-        createText("Septembre 2021", -3.6, 2, -14.6, 149.6);
+        createText("Aout 2024", -3.6, 2, -14.6, 149.6);
 
         createText("Mes differents projets", 16.5, 3, -16.8, 149.3);
+        createText("Lors de mon alternance", 9.5, 3, -17.8, 119.3);
 
         //PUITS
         createText("Bac en Sciences et Technologies", -15.5, 2, -2, 178.8);
@@ -883,7 +887,7 @@
     </script>
 </head>
 <body>
-<div class="chargement"><div class="textCharg">Chargement...</div></div>
+<!--<div class="chargement"><div class="textCharg">Chargement...</div></div>-->
 <div class="start">
     <div class="texteStart">
         <div class="title">Un zeste d'éclat</div>
@@ -925,32 +929,59 @@
               fill="white"/>
     </svg>
 </div>
+<div class="entrer">
+    <svg width="120" height="auto" viewBox="0 0 241 330" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <mask id="path-1-inside-1_5_2" fill="white">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M27 0C12.0883 0 0 12.0883 0 27V152C0 166.912 12.0883 179 27 179H62V303C62 317.912 74.0883 330 89 330H214C228.912 330 241 317.912 241 303V27C241 12.0883 228.912 0 214 0H152H89H27Z"/>
+        </mask>
+        <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M27 0C12.0883 0 0 12.0883 0 27V152C0 166.912 12.0883 179 27 179H62V303C62 317.912 74.0883 330 89 330H214C228.912 330 241 317.912 241 303V27C241 12.0883 228.912 0 214 0H152H89H27Z"
+              fill="white" fill-opacity="0.5"/>
+        <path d="M62 179H68V173H62V179ZM6 27C6 15.402 15.402 6 27 6V-6C8.7746 -6 -6 8.77461 -6 27H6ZM6 152V27H-6V152H6ZM27 173C15.402 173 6 163.598 6 152H-6C-6 170.225 8.77461 185 27 185V173ZM62 173H27V185H62V173ZM68 303V179H56V303H68ZM89 324C77.402 324 68 314.598 68 303H56C56 321.225 70.7746 336 89 336V324ZM214 324H89V336H214V324ZM235 303C235 314.598 225.598 324 214 324V336C232.225 336 247 321.225 247 303H235ZM235 27V303H247V27H235ZM214 6C225.598 6 235 15.402 235 27H247C247 8.7746 232.225 -6 214 -6V6ZM152 6H214V-6H152V6ZM89 6H152V-6H89V6ZM27 6H89V-6H27V6Z"
+              fill="white" mask="url(#path-1-inside-1_5_2)"/>
+        <path d="M39.6364 106V59.4545H67.7273V64.4545H45.2727V80.1818H66.2727V85.1818H45.2727V101H68.0909V106H39.6364ZM82.5227 85V106H77.1591V71.0909H82.3409V76.5455H82.7955C83.6136 74.7727 84.8561 73.3485 86.5227 72.2727C88.1894 71.1818 90.3409 70.6364 92.9773 70.6364C95.3409 70.6364 97.4091 71.1212 99.1818 72.0909C100.955 73.0455 102.333 74.5 103.318 76.4545C104.303 78.3939 104.795 80.8485 104.795 83.8182V106H99.4318V84.1818C99.4318 81.4394 98.7197 79.303 97.2955 77.7727C95.8712 76.2273 93.9167 75.4545 91.4318 75.4545C89.7197 75.4545 88.1894 75.8258 86.8409 76.5682C85.5076 77.3106 84.4545 78.3939 83.6818 79.8182C82.9091 81.2424 82.5227 82.9697 82.5227 85ZM129.778 71.0909V75.6364H111.688V71.0909H129.778ZM116.96 62.7273H122.324V96C122.324 97.5152 122.544 98.6515 122.983 99.4091C123.438 100.152 124.013 100.652 124.71 100.909C125.422 101.152 126.172 101.273 126.96 101.273C127.551 101.273 128.036 101.242 128.415 101.182C128.794 101.106 129.097 101.045 129.324 101L130.415 105.818C130.051 105.955 129.544 106.091 128.892 106.227C128.241 106.379 127.415 106.455 126.415 106.455C124.9 106.455 123.415 106.129 121.96 105.477C120.521 104.826 119.324 103.833 118.369 102.5C117.43 101.167 116.96 99.4848 116.96 97.4545V62.7273ZM137.847 106V71.0909H143.028V76.3636H143.392C144.028 74.6364 145.18 73.2348 146.847 72.1591C148.513 71.0833 150.392 70.5455 152.483 70.5455C152.877 70.5455 153.369 70.553 153.96 70.5682C154.551 70.5833 154.998 70.6061 155.301 70.6364V76.0909C155.119 76.0455 154.703 75.9773 154.051 75.8864C153.415 75.7803 152.741 75.7273 152.028 75.7273C150.331 75.7273 148.816 76.0833 147.483 76.7955C146.165 77.4924 145.119 78.4621 144.347 79.7045C143.589 80.9318 143.21 82.3333 143.21 83.9091V106H137.847ZM175.233 106.727C171.869 106.727 168.968 105.985 166.528 104.5C164.104 103 162.233 100.909 160.915 98.2273C159.612 95.5303 158.96 92.3939 158.96 88.8182C158.96 85.2424 159.612 82.0909 160.915 79.3636C162.233 76.6212 164.066 74.4848 166.415 72.9545C168.778 71.4091 171.536 70.6364 174.688 70.6364C176.506 70.6364 178.301 70.9394 180.074 71.5455C181.847 72.1515 183.46 73.1364 184.915 74.5C186.369 75.8485 187.528 77.6364 188.392 79.8636C189.256 82.0909 189.688 84.8333 189.688 88.0909V90.3636H162.778V85.7273H184.233C184.233 83.7576 183.839 82 183.051 80.4545C182.278 78.9091 181.172 77.6894 179.733 76.7955C178.309 75.9015 176.627 75.4545 174.688 75.4545C172.551 75.4545 170.703 75.9848 169.142 77.0455C167.597 78.0909 166.407 79.4545 165.574 81.1364C164.741 82.8182 164.324 84.6212 164.324 86.5455V89.6364C164.324 92.2727 164.778 94.5076 165.688 96.3409C166.612 98.1591 167.892 99.5455 169.528 100.5C171.165 101.439 173.066 101.909 175.233 101.909C176.642 101.909 177.915 101.712 179.051 101.318C180.203 100.909 181.195 100.303 182.028 99.5C182.862 98.6818 183.506 97.6667 183.96 96.4545L189.142 97.9091C188.597 99.6667 187.68 101.212 186.392 102.545C185.104 103.864 183.513 104.894 181.619 105.636C179.725 106.364 177.597 106.727 175.233 106.727ZM197.847 106V71.0909H203.028V76.3636H203.392C204.028 74.6364 205.18 73.2348 206.847 72.1591C208.513 71.0833 210.392 70.5455 212.483 70.5455C212.877 70.5455 213.369 70.553 213.96 70.5682C214.551 70.5833 214.998 70.6061 215.301 70.6364V76.0909C215.119 76.0455 214.703 75.9773 214.051 75.8864C213.415 75.7803 212.741 75.7273 212.028 75.7273C210.331 75.7273 208.816 76.0833 207.483 76.7955C206.165 77.4924 205.119 78.4621 204.347 79.7045C203.589 80.9318 203.21 82.3333 203.21 83.9091V106H197.847Z"
+              fill="white"/>
+    </svg>
+</div>
 <div class="bigPopUp1">
     <div class="popUp">
         <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 100px; text-align: left">Portfolio 2022</div>
-            <div class="popFlex">
-                <div class="textPop">Mon site de la fin de ma première année dans le BUT MMI. Ce site contient les
-                    informations ainsi que les travaux des SAE. C'est des projets que j'ai réalisés en première et
-                    deuxième année de BUT et complétés avec mes acquis.
-                    <br><br>
-                    Ce portfolio m'a surtout permis de programmer en PHP et ainsi de récupérer les informations d'une
-                    base de données sur PhpMyAdmin. J'ai également utilisé des langages comme le HTML, CSS et JavaScript
-                    pour la mise en page et l'animation du site.
-                </div>
-                <img width="800" src="./textures/projectPROG/portfolioSEM2.JPG" alt="portfolio2022">
+        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Kaiserstuhl Escape</div>
+        <div class="popFlex" style="flex-direction: row; align-items: start">
+            <div class="textPop">Lors de cette deuxième année de BUT MMI, il m'a été demandé de réaliser un escape game
+                sur le web jouable sur mobile. Le but étant de découvrir la ville de Mulhouse entièrement en anglais,
+                j'ai décidé de retracer les différentes découvertes du textile et de l'impression sur étoffe dans les
+                années 1880.
+                <br><br>
+                Ce projet a été fait en HTML, CSS et ainsi que Javascript. J'ai pu créer des jeux simples tel que des
+                point and click (recherche d'objets dans une image), du drag and drop ainsi que l'utilisation du tactile
+                pour permettre le dessin. Pour rendre l'escape game plus immersif, j'ai utilisé la géolocation du
+                téléphone qui permet de découvrir les différentes étapes de l'escape game en se déplaçant dans la ville.
+                <br><br>
+                Cela m'a permis d'améliorer mes connaissances en Javascript en utilisant de nombreux événements ainsi
+                que la géolocalisation.
+                <br><br>
+                N'hésitez pas à rajouter debug.html à la fin du lien pour avoir accès à tous les mini-jeux de l'escape
+                game.
+                <br><br>
+                <div class="btnPop"><a href="https://zouwi.github.io/SAE402/">Aller sur le site</a></div>
             </div>
-        <div class="btnPop"><a href="https://portfolio-gabet-2022.netlify.app/">Aller sur le site</a></div>
+            <img width="400" src="./textures/projectPROG/fabricaeViam.JPG" alt="fabricaeViam">
+        </div>
     </div>
 </div>
 <div class="bigPopUp2">
     <div class="popUp">
         <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 100px; text-align: left">Retro Rococo</div>
+        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Retro Rococo</div>
         <div class="popFlex">
-            <div class="textPop">Retro Rococo est un site web réalisé en troisième et dernière année de BUT MMI. Ce site a été fait en groupe de 2 personnes, et a pour but d'être un site d'e-commerce.
+            <div class="textPop">Retro Rococo est un site web réalisé en troisième et dernière année de BUT MMI. Ce site
+                a été fait en groupe de 2 personnes, et a pour but d'être un site d'e-commerce.
                 <br><br>
-                Ce site d'e-commerce a été fait sur Prestashop et possède plusieurs fonctionnalités telles qu'une IA générative de produits et de recommandations, un chat en temps réel fait avec Node.JS et l'utilisation de Three.JS pour la 3D.
+                Ce site d'e-commerce a été fait sur Prestashop et possède plusieurs fonctionnalités telles qu'une IA
+                générative de produits et de recommandations, un chat en temps réel fait avec Node.JS et l'utilisation
+                de Three.JS pour la 3D.
             </div>
             <img width="800" src="./textures/projectPROG/retroRococo.JPG" alt="retro_rococo">
         </div>
@@ -960,60 +991,120 @@
 <div class="bigPopUp3">
     <div class="popUp">
         <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 100px; text-align: left">Affiche Juliette Oberndorfer</div>
+        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Affiches</div>
         <div class="popFlex">
-            <div class="textPop">Cette affiche a été faite lors de mon temps libre et représente les différentes illustrations de Juliette Oberndorfer. Ces illustrations colorées m'ont beaucoup inspirées et j'ai donc décidé de les mettre en avant sur une affiche.
+            <div class="textPop">Pendant mon temps libre, j'aime pratiquer sur Photoshop et Illustrator pour découvrir
+                les différents outils et explorer leurs possibilités. J'ai notamment réalisé plusieurs affiches sur des
+                thèmes variés, en utilisant des styles divers.
                 <br><br>
-                Comme pour mes autres projets, cela a été réalisé avec Adobe Photoshop.
+                Grâce à ces exercices, j'ai pu développer ma créativité et améliorer mon aisance avec ces logiciels en
+                testant et utilisant divers outils.
             </div>
-            <img width="450" src="./textures/projectCREA/juliette.jpg" alt="juliette">
+            <div class="imgPres">
+                <img width="400" src="./textures/projectCREA/juliette.jpg" alt="affiche_juliette">
+                <img width="400" src="./textures/projectCREA/flower.jpg" alt="affiche_flower">
+                <img width="400" src="./textures/projectCREA/noodles-factory.jpg" alt="affiche_noodles">
+                <img width="400" src="./textures/projectCREA/affichefinalfinal.jpg" alt="affiche_skyte">
+            </div>
         </div>
     </div>
 </div>
 <div class="bigPopUp4">
     <div class="popUp">
         <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 100px; text-align: left">Affiche Seishi</div>
-            <div class="textPop" style="margin-bottom: 30px">Cette affiche ou plutôt création, a été faite pour un concours amical sur un blog passé. Le but est tout simplement de créer une création "la plus belle" dans un thème choisi.
-                <br><br>
-                Ce projet a été réalisé sur Photofiltre, un logiciel semblable à Photoshop mais plus simple d'utilisation. Cette création a été faite avec de la superposition de textures et de couleurs tout en jouant avec les différents modes de fusion proposés par le logiciel.
-            </div>
-            <img width="800" src="./textures/projectCREA/seishi.png" alt="seishi">
+        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Affiche Seishi</div>
+        <div class="textPop" style="margin-bottom: 30px">Ces créations représentent le fruit de ma première utilisation
+            de Photofiltre, un logiciel de modification de photos comparable à Photoshop. J'explore les modes de fusion
+            avec différentes textures et couleurs pour créer une harmonie visuelle basée sur une image de départ.
+            <br><br>
+            Ces réalisations, bien que récentes, témoignent d'une pratique que j’ai développée depuis avant l’obtention
+            de mon bac STD2A. Grâce à cette expérience, j’ai acquis une maîtrise des logiciels tels que Photoshop et
+            Illustrator, tout en développant ma créativité en expérimentant divers résultats selon les modes de fusion.
+        </div>
+        <div class="imgPres">
+            <img width="600" src="./textures/projectCREA/seishi.png" alt="creation_seishi">
+            <img width="1000" src="./textures/projectCREA/so dream.png" alt="creation_sodream">
+            <img width="600" src="./textures/projectCREA/サムライ.jpg" alt="creation_サムライ">
+            <img width="600" src="./textures/projectCREA/roses-garden.jpg" alt="creation_roses">
+        </div>
     </div>
 </div>
 <div class="bigPopUp6">
     <div class="popUp">
         <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 100px; text-align: left">Affiche Skyte</div>
+        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Projet STD2A</div>
         <div class="popFlex">
-            <div class="textPop">Cette affiche a été réalisé pour un projet SAE de première année du BUT MMI. La consigne était de faire un véhicule individuel écologique en créant tout un dossier de conception ainsi que le dossier de communication. J'ai conçu cette affiche pour promouvoir le véhicule de mon groupe qui est le Skyte. J'ai, de plus, réalisé le logo de la marque présent sur l'affiche.
+            <div class="textPop">Lors de ma dernière année de bac STD2A, j’ai travaillé sur de nombreux sujets de bac
+                pour préparer mon épreuve de spécialisation. Ces sujets, à réaliser en 4 heures ou moins, étaient
+                exécutés sur de simples feuilles blanches, en conditions d'examen.
                 <br><br>
-                Affiche réalisée avec Adobe Photoshop, ainsi que Illustrator pour le logo.
+                Ce projet porte sur l'art engagé et comprend diverses analyses d'œuvres, ainsi que mes problématiques et
+                leurs réponses à travers des croquis et des explications détaillées.
+                <br><br>
+                Le PDF contient l’intégralité de ce projet.
+                <br><br>
+                <div class="btnPop"><a
+                        href="https://drive.google.com/file/d/1J_tiqXqhRYu02crC3hLlsk52MtZgXqy8/view?usp=sharing">Accéder
+                    au PDF</a></div>
             </div>
-            <img width="450" src="./textures/projectCREA/affichefinalfinal.jpg" alt="skyte">
+            <img width="800" src="./textures/projectCREA/std2a.JPG" alt="projet_std2a">
         </div>
-    </div>
-</div>
-<div class="bigPopUp5">
-    <div class="popUp">
-        <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 100px; text-align: left">Affiche サムライ</div>
-        <div class="textPop" style="margin-bottom: 30px">Ceci est une autre création réalisée dans mon temps libre. J'ai fait énormement de création de ce genre pour tout simplement tester des techniques et des styles différents. Car chaque texture superposée a un rendu différent en fonction du mode de fusion utilisé.
-            <br><br>
-            De la même manière que la création Seshi, cela a été fait avec de la superposition de textures et couleurs sur PhotoShop.
-        </div>
-        <img width="800" src="./textures/projectCREA/サムライ.jpg" alt="japonais">
     </div>
 </div>
 <div class="bigPopUp7">
     <div class="popUp">
         <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 100px; text-align: left">Le web design</div>
-        <div class="textPop" style="margin-bottom: 30px">Avec mon bac en arts appliqués et prochainement mon diplôme en BUT MMI, je souhaite mélanger ces deux compétences pour créer des projets à mon image.
+        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Le web design</div>
+        <div class="textPop" style="margin-bottom: 30px">Avec mon bac en arts appliqués et prochainement mon diplôme en
+            BUT MMI, je souhaite combiner ces deux compétences pour réaliser des projets uniques qui reflètent ma vision
+            créative et technique.
             <br><br>
-            Le site sur lequel vous naviguez reflète mon univers ainsi que mes acquis en web design. Mon but est de créer et imaginer des sites web inoubliables tout en gardant une simplicité d'utilisation en UI et UX.
+            Le site sur lequel vous naviguez illustre mon univers et mes acquis en web design. Mon objectif est de
+            concevoir des sites web mémorables, alliant une esthétique soignée à une expérience utilisateur intuitive et
+            fluide en termes de UI et UX.
         </div>
         <img width="400" src="./textures/projectCREA/zuwi.jpg" alt="moi">
+    </div>
+</div>
+<div class="bigPopUp8">
+    <div class="popUp">
+        <div class="croix">x</div>
+        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Les travaux d'imprimerie</div>
+        <div class="textPop" style="margin-bottom: 30px">Durant mon alternance, j'ai été chargé de créer une
+            application, en commençant par la conception de la maquette sur Figma, la création de la base de données, la
+            programmation, et la mise en production.
+            <br><br>
+            La programmation a été réalisée en C# avec une architecture MVC et une base de données Oracle. J'ai
+            développé un formulaire pour la création de demandes avec de multiples options, une fonctionnalité de
+            recherche avec filtres rapides et formulaire, un tableau de bord pour chaque utilisateur, ainsi qu'une page
+            de gestion permettant de valider, modifier ou supprimer une demande.
+            <br><br>
+            Malheureusement, je ne peux pas fournir de lien vers l'application web.
+        </div>
+        <div class="imgPres">
+            <img width="820" src="./textures/projectPROG/creaDemande-travaux.jpg" alt="travaux_creaDemande">
+            <img width="820" src="./textures/projectPROG/rechDemande-travaux.jpg" alt="travaux_rechDemande">
+            <img width="820" src="./textures/projectPROG/tableauBord-travaux.jpg" alt="travaux_tableDemande">
+        </div>
+    </div>
+</div>
+<div class="bigPopUp9">
+    <div class="popUp">
+        <div class="croix">x</div>
+        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Maquette Figma des travaux d'imprimerie</div>
+        <div class="textPop" style="margin-bottom: 30px">Pour ce projet, j'ai commencé par la création d'une maquette
+            sur Figma. J'ai accordé une grande importance aux détails pour qu'elle soit facilement compréhensible par le
+            client.
+            <br><br>
+            J'ai utilisé les fonctionnalités de mise en page automatique, facilitant l'alignement des éléments, ainsi
+            que les prototypes permettant les animations et interactions, comme un menu déroulant ou un changement de
+            page.
+            <br><br>
+            <div class="btnPop"><a
+                    href="https://www.figma.com/design/ewsMxMHuiUiRDUmqWJEm6D/Travaux-repro?node-id=375-5680&t=kHAnyPpIPiNqGbsy-1">Accéder à
+                la maquette</a></div>
+        </div>
+        <img width="900" src="./textures/projectPROG/figma.jpg" alt="travaux_figma">
     </div>
 </div>
 
