@@ -12,10 +12,10 @@
 
     <script type="module">
         //** CHARGEMENT **//
-        //page de chargement qui disparait au bout de 15 secondes
+        //page de chargement qui disparait au bout de 5 secondes
         setTimeout(function () {
             document.querySelector('.chargement').style.display = "none";
-        }, 15000);
+        }, 5000);
 
         //** INIT **//
         import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
@@ -105,20 +105,6 @@
             //characterControls = new Controls(model, mixer, animationsMap, orbitControls, camera, 'Idle');
         });
 
-        /**BOUTON DEPART **/
-        // Gestionnaire d'événement pour le bouton "Démarrer"
-        document.querySelector(".btnStart").addEventListener('click', () => {
-            // Supprimer la caméra globale de la scène
-            config.scene.remove(fixedCamera);
-
-            // Supprimer le bouton "Démarrer"
-            orbitControls.enabled = true;
-            document.querySelector(".start").remove();
-
-            // Créer l'instance de Controls avec la caméra du joueur
-            controls = new Character(model, mixer, animationsMap, orbitControls, camera, 'Idle');
-        });
-
         /** CONTROL KEYS **/
         const keysPressed = {};
         const keyDisplayQueue = new KeyDisplay();
@@ -150,6 +136,20 @@
         plane.position.y = 2;
         plane.rotation.y = 0.7;
         //config.scene.add(plane);
+
+        /**BOUTON DEPART **/
+        // Gestionnaire d'événement pour le bouton "Démarrer"
+        document.querySelector(".btnStart").addEventListener('click', () => {
+            // Supprimer la caméra globale de la scène
+            config.scene.remove(fixedCamera);
+
+            // Supprimer le bouton "Démarrer"
+            orbitControls.enabled = true;
+            document.querySelector(".start").remove();
+
+            // Créer l'instance de Controls avec la caméra du joueur
+            controls = new Character(model, mixer, animationsMap, orbitControls, camera, 'Idle');
+        });
 
         // Création d'un tableau pour stocker les cubes
         const cubes = [];
@@ -254,9 +254,9 @@
         createText("=>", -11.5, 1.8, -7.3, 179.8);
 
         //CHAMPIGNON
-        createText("Debut en BUT des Metiers du", -3.6, 3, -14.6, 149.6);
+        createText("BUT des Metiers du", -3.6, 3, -14.6, 149.6);
         createText("Multimedia et de l'Internet", -3.6, 2.5, -14.6, 149.6);
-        createText("Aout 2024", -3.6, 2, -14.6, 149.6);
+        createText("Obtenu en aout 2024", -3.6, 2, -14.6, 149.6);
 
         createText("Mes differents projets", 16.5, 3, -16.8, 149.3);
         createText("Lors de mon alternance", 9.5, 3, -17.8, 119.3);
@@ -338,7 +338,7 @@
         function AmmoStart(Ammo) {
             tmpTransformation = new Ammo.btTransform();
             vecteur = new Ammo.btVector3(moveX, moveY, moveZ);
-
+            let ballCollision;
             initPhysicsUniverse();
             initGraphicsUniverse();
             createBall();
@@ -659,6 +659,7 @@
                 rigidBody_List.push(newCube);
             }
 
+
             function createBall() {
 
                 let pos = {x: -18, y: 0, z: -17};
@@ -669,12 +670,12 @@
                 //threeJS Section
                 let ball = new THREE.SphereGeometry(radius);
                 let materialBall = new THREE.MeshPhongMaterial({color: 0xffffff, opacity: 0, transparent: true});
-                let newBall = ballObject = new THREE.Mesh(ball, materialBall);
-                config.scene.add(newBall);
-                newBall.position.set(pos.x, pos.y, pos.z);
+                ballCollision = ballObject = new THREE.Mesh(ball, materialBall);
+                config.scene.add(ballCollision);
+                ballCollision.position.set(pos.x, pos.y, pos.z);
 
-                newBall.castShadow = true;
-                newBall.receiveShadow = true;
+                ballCollision.castShadow = true;
+                ballCollision.receiveShadow = true;
 
 
                 //Ammojs Section
@@ -700,9 +701,10 @@
 
                 physicsUniverse.addRigidBody(body);
 
-                newBall.userData.physicsBody = body;
-                rigidBody_List.push(newBall);
+                ballCollision.userData.physicsBody = body;
+                rigidBody_List.push(ballCollision);
             }
+
 
 
             function updatePhysicsUniverse(deltaTime) {
@@ -887,7 +889,7 @@
     </script>
 </head>
 <body>
-<!--<div class="chargement"><div class="textCharg">Chargement...</div></div>-->
+<div class="chargement"><div class="textCharg">Chargement...</div></div>
 <div class="start">
     <div class="texteStart">
         <div class="title">Un zeste d'éclat</div>
@@ -982,10 +984,11 @@
                 Ce site d'e-commerce a été fait sur Prestashop et possède plusieurs fonctionnalités telles qu'une IA
                 générative de produits et de recommandations, un chat en temps réel fait avec Node.JS et l'utilisation
                 de Three.JS pour la 3D.
+                <br><br>
+                <div class="btnPop"><a href="https://shop.iutmulhouse.fr">Aller sur le site</a></div>
             </div>
             <img width="800" src="./textures/projectPROG/retroRococo.JPG" alt="retro_rococo">
         </div>
-        <div class="btnPop"><a href="https://shop.iutmulhouse.fr">Aller sur le site</a></div>
     </div>
 </div>
 <div class="bigPopUp3">
@@ -1012,7 +1015,7 @@
 <div class="bigPopUp4">
     <div class="popUp">
         <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Affiche Seishi</div>
+        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Créations</div>
         <div class="textPop" style="margin-bottom: 30px">Ces créations représentent le fruit de ma première utilisation
             de Photofiltre, un logiciel de modification de photos comparable à Photoshop. J'explore les modes de fusion
             avec différentes textures et couleurs pour créer une harmonie visuelle basée sur une image de départ.

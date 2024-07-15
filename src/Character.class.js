@@ -1,6 +1,6 @@
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import * as THREE from 'three'
-import { Q, D, DIRECTIONS, S, Z } from './Controls.class.js'
+import {Q, D, DIRECTIONS, S, Z} from './Controls.class.js'
 import Config from './Config.class.js'
 import Camera from './Camera.class.js'
 
@@ -38,8 +38,8 @@ export class Character {
 
         // constants
         this.fadeDuration = 0.1;
-        this.runVelocity = 3;
-        this.walkVelocity = 3;
+        this.runVelocity = 2;
+        this.walkVelocity = 2;
     }
 
     switchRunToggle() {
@@ -140,36 +140,6 @@ export class Character {
 
         return directionOffset;
     }
-
-    /*createPhysicalBody() {
-        // Créez le corps physique pour votre personnage, en utilisant Ammo.js
-        // Assurez-vous de définir la forme du corps physique, la masse, et la position initiale
-        // Par exemple :
-        const mass = 1; // Masse du personnage
-        const scale = 1; // Echelle du personnage
-        const position = { x: 0, y: 0, z: 0 }; // Position initiale du personnage
-
-        // Création du corps physique Ammo.js
-        const transform = new Ammo.btTransform();
-        transform.setIdentity();
-        transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
-        const motionState = new Ammo.btDefaultMotionState(transform);
-        const colShape = new Ammo.btBoxShape(new Ammo.btVector3(scale / 2, scale / 2, scale / 2));
-        const localInertia = new Ammo.btVector3(0, 0, 0);
-        colShape.calculateLocalInertia(mass, localInertia);
-        const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, colShape, localInertia);
-        this.physicsBody = new Ammo.btRigidBody(rbInfo);
-
-        // Ajout du corps physique à l'univers physique
-        this.physicsUniverse.addRigidBody(this.physicsBody);
-    }
-
-    updatePhysics() {
-        // Mettez à jour la position du corps physique en fonction de la position du personnage dans la scène 3D
-        const position = this.model.position;
-        const transform = this.physicsBody.getMotionState().getWorldTransform();
-        transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
-    }*/
 }
 
 export default Character;
