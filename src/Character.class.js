@@ -126,9 +126,9 @@ export class Character {
             }
         } else if (keysPressed[S]) {
             if (keysPressed[Q]) {
-                directionOffset = Math.PI / -4 + -Math.PI / 2; // s+q
+                directionOffset = Math.PI / -4 + -Math.PI / 1; // s+q
             } else if (keysPressed[D]) {
-                directionOffset = -Math.PI / -4 - Math.PI / 2; // s+d
+                directionOffset = -Math.PI / -4 - Math.PI / 1; // s+d
             } else {
                 directionOffset = Math.PI; // s
             }

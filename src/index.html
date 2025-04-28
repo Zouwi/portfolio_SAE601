@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap"
-          rel="stylesheet">
+        rel="stylesheet">
 
     <script type="module">
         //** CHARGEMENT **//
@@ -18,7 +19,7 @@
         }, 5000);
 
         //** INIT **//
-        import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+        import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
         import Config from './Config.class.js';
         import Camera from './Camera.class.js';
         import KeyDisplay from './Controls.class.js';
@@ -68,7 +69,7 @@
         config.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
         /** CONTROLS **/
-            // Create OrbitControls
+        // Create OrbitControls
         const orbitControls = new OrbitControls(camera.camera, config.renderer.domElement);
         orbitControls.enableDamping = true;
         orbitControls.minDistance = 5;
@@ -122,7 +123,7 @@
         }, false);
 
         /**DECOR **/
-            //Create a plane that is transparent but have borders
+        //Create a plane that is transparent but have borders
         const geometry = new THREE.PlaneGeometry(4, 2, 32);
         const material = new THREE.MeshBasicMaterial({
             color: 0xffffff,
@@ -156,15 +157,15 @@
 
         function createProjet(posX, posY, posZ, rotY, texture, popUpId) {
             const geometryCube = new THREE.BoxGeometry(1.3, 0.8, 0.2);
-            const materialCubeTexture = new THREE.MeshBasicMaterial({map: texture});
-            const materialCubeCouleur = new THREE.MeshBasicMaterial({color: 0xffffff});
+            const materialCubeTexture = new THREE.MeshBasicMaterial({ map: texture });
+            const materialCubeCouleur = new THREE.MeshBasicMaterial({ color: 0xffffff });
             const materialCube = [materialCubeCouleur, materialCubeCouleur, materialCubeCouleur, materialCubeCouleur, materialCubeTexture, materialCubeCouleur];
             const cube = new THREE.Mesh(geometryCube, materialCube);
             cube.position.set(posX, posY, posZ);
             cube.rotation.y = rotY;
 
             config.scene.add(cube);
-            cubes.push({cube: cube, popUpId: popUpId, initialPosY: posY}); // Ajout du cube et de son identifiant au tableau
+            cubes.push({ cube: cube, popUpId: popUpId, initialPosY: posY }); // Ajout du cube et de son identifiant au tableau
         }
 
         // Création des cubes avec leurs textures respectives
@@ -180,6 +181,9 @@
 
         const texture9 = config.textureLoader.load('./textures/projectPROG/figma.jpg');
         createProjet(12, 2, -17.5, 119.3, texture9, 9);
+
+        const texture10 = config.textureLoader.load('./textures/projectPROG/fildutemps1.PNG');
+        createProjet(14.8, 2, -12.5, 148.3, texture10, 10);
 
         //PUITS / ARBRES
         const texture3 = config.textureLoader.load('./textures/projectCREA/julietteZOOM.jpg');
@@ -291,7 +295,7 @@
                     bevelSegments: 2
                 });
 
-                const textMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, specular: 0xffffff});
+                const textMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xffffff });
 
                 const mesh = new THREE.Mesh(geometry, textMaterial);
                 mesh.position.set(posX, posY, posZ);
@@ -301,7 +305,7 @@
                 mesh.castShadow = true;
                 mesh.receiveShadow = true;
 
-                textMeshes.push({mesh: mesh, initialPosY: posY});
+                textMeshes.push({ mesh: mesh, initialPosY: posY });
                 config.scene.add(mesh);
             });
         }
@@ -312,7 +316,7 @@
 
         //**AMMOJS **//
         import Ammo from './ammo.js';
-        import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry.js";
+        import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 
         //VARIABLES GLOBALES
         let tmpTransformation = undefined;
@@ -328,7 +332,7 @@
 
         let ballObject = null;
 
-        const STATE = {DISABLE_DEACTIVATION: 4}
+        const STATE = { DISABLE_DEACTIVATION: 4 }
 
 
         // ------ Ammo.js Init ------
@@ -608,7 +612,7 @@
                 //camera.lookAt(new THREE.Vector3(0, 6, 0));
 
                 //renderer
-                renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+                renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
                 renderer.setPixelRatio(window.devicePixelRatio);
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 document.body.appendChild(renderer.domElement);
@@ -630,13 +634,13 @@
             function createCube(scale, position, mass, rot_quaternion) {
                 let quaternion;
                 if (rot_quaternion == null) {
-                    quaternion = {x: 0, y: 0, z: 0, w: 1};
+                    quaternion = { x: 0, y: 0, z: 0, w: 1 };
                 } else {
                     quaternion = rot_quaternion;
                 }
                 // ------ Graphics Universe - Three.JS ------
                 let cube = new THREE.BoxGeometry(scale, scale, scale);
-                let material = new THREE.MeshPhongMaterial({color: 0xffffff, opacity: 0, transparent: true});
+                let material = new THREE.MeshPhongMaterial({ color: 0xffffff, opacity: 0, transparent: true });
                 let newCube = new THREE.Mesh(cube, material);
                 newCube.position.set(position.x, position.y, position.z);
                 config.scene.add(newCube);
@@ -662,14 +666,14 @@
 
             function createBall() {
 
-                let pos = {x: -18, y: 0, z: -17};
+                let pos = { x: -18, y: 0, z: -17 };
                 let radius = 0.6;
-                let quat = {x: 0, y: 0, z: 0, w: 1};
+                let quat = { x: 0, y: 0, z: 0, w: 1 };
                 let mass = 3;
 
                 //threeJS Section
                 let ball = new THREE.SphereGeometry(radius);
-                let materialBall = new THREE.MeshPhongMaterial({color: 0xffffff, opacity: 0, transparent: true});
+                let materialBall = new THREE.MeshPhongMaterial({ color: 0xffffff, opacity: 0, transparent: true });
                 ballCollision = ballObject = new THREE.Mesh(ball, materialBall);
                 config.scene.add(ballCollision);
                 ballCollision.position.set(pos.x, pos.y, pos.z);
@@ -869,12 +873,12 @@
                 updatePhysicsUniverse(deltaTime);
 
                 //ANIMATION TEXTE MESH DE HAUT EN BAS
-                textMeshes.forEach(({mesh, initialPosY}) => {
+                textMeshes.forEach(({ mesh, initialPosY }) => {
                     mesh.position.y = initialPosY + Math.sin(elapsedTime) * 0.1;
                 });
 
                 //ANIMATION CUBE DE HAUT EN BAS
-                cubes.forEach(({cube, initialPosY}) => {
+                cubes.forEach(({ cube, initialPosY }) => {
                     cube.position.y = initialPosY + Math.sin(elapsedTime) * 0.1;
                 });
 
@@ -888,230 +892,294 @@
         }
     </script>
 </head>
+
 <body>
-<div class="chargement"><div class="textCharg">Chargement...</div></div>
-<div class="start">
-    <div class="texteStart">
-        <div class="title">Un zeste d'éclat</div>
-        <div class="subTitle">Zoé Gabet portfolio</div>
-        <div class="subTexte">Êtes vous prêt à rentrer dans un monde fantastique de rêves, d'espoirs et
-            d'accomplissements ? Partez à la découverte de mon parcours ainsi que de mes créations du lycée jusqu'à
-            aujourd'hui en passant les passions.
-        </div>
-        <div class="btnStart">Découvrir</div>
+    <div class="chargement">
+        <div class="textCharg">Chargement...</div>
     </div>
-</div>
-<div class="controls">
-    <svg id="touchZ" class="svg" width="80" height="80" viewBox="0 0 179 179" fill="none"
-         xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="173" height="173" rx="24" fill="white" fill-opacity="0.5" stroke="white"
-              stroke-width="6"/>
-        <path d="M70.794 117V112.206L100.197 68.3139H70.4744V62.4545H108.081V67.2486L78.6776 111.141H108.401V117H70.794Z"
-              fill="white"/>
-    </svg>
-    <svg id="touchQ" class="svg" width="80" height="80" viewBox="0 0 179 179" fill="none"
-         xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="173" height="173" rx="24" fill="white" fill-opacity="0.5" stroke="white"
-              stroke-width="6"/>
-        <path d="M87.4205 99.9545H94.6648L100.737 107.945L102.335 110.075L111.391 122.114H104.146L98.1804 114.124L96.6889 112.099L87.4205 99.9545ZM113.628 89.7273C113.628 95.4801 112.589 100.452 110.512 104.642C108.434 108.832 105.585 112.064 101.962 114.337C98.3402 116.609 94.2031 117.746 89.5511 117.746C84.8991 117.746 80.7621 116.609 77.1399 114.337C73.5178 112.064 70.668 108.832 68.5906 104.642C66.5131 100.452 65.4744 95.4801 65.4744 89.7273C65.4744 83.9744 66.5131 79.0028 68.5906 74.8125C70.668 70.6222 73.5178 67.3906 77.1399 65.1179C80.7621 62.8452 84.8991 61.7088 89.5511 61.7088C94.2031 61.7088 98.3402 62.8452 101.962 65.1179C105.585 67.3906 108.434 70.6222 110.512 74.8125C112.589 79.0028 113.628 83.9744 113.628 89.7273ZM107.236 89.7273C107.236 85.0043 106.446 81.0181 104.865 77.7688C103.303 74.5195 101.181 72.0604 98.5 70.3913C95.8366 68.7223 92.8537 67.8878 89.5511 67.8878C86.2486 67.8878 83.2567 68.7223 80.5756 70.3913C77.9123 72.0604 75.7905 74.5195 74.2102 77.7688C72.6477 81.0181 71.8665 85.0043 71.8665 89.7273C71.8665 94.4503 72.6477 98.4364 74.2102 101.686C75.7905 104.935 77.9123 107.394 80.5756 109.063C83.2567 110.732 86.2486 111.567 89.5511 111.567C92.8537 111.567 95.8366 110.732 98.5 109.063C101.181 107.394 103.303 104.935 104.865 101.686C106.446 98.4364 107.236 94.4503 107.236 89.7273Z"
-              fill="white"/>
-    </svg>
-    <svg id="touchS" class="svg" width="80" height="80" viewBox="0 0 179 179" fill="none"
-         xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="173" height="173" rx="24" fill="white" fill-opacity="0.5" stroke="white"
-              stroke-width="6"/>
-        <path d="M102.435 76.0909C102.115 73.392 100.819 71.2969 98.5462 69.8054C96.2734 68.3139 93.4858 67.5682 90.1832 67.5682C87.7685 67.5682 85.6555 67.9588 83.8445 68.7401C82.0511 69.5213 80.6484 70.5955 79.6364 71.9627C78.642 73.3299 78.1449 74.8835 78.1449 76.6236C78.1449 78.0795 78.4911 79.3313 79.1836 80.3789C79.8938 81.4087 80.7994 82.2699 81.9002 82.9624C83.0011 83.6371 84.1552 84.1964 85.3626 84.6403C86.57 85.0664 87.6797 85.4126 88.6918 85.679L94.2315 87.1705C95.652 87.5433 97.2322 88.0582 98.9723 88.7152C100.73 89.3722 102.408 90.2688 104.006 91.4052C105.622 92.5238 106.953 93.962 108.001 95.7198C109.049 97.4776 109.572 99.6349 109.572 102.192C109.572 105.139 108.8 107.803 107.255 110.182C105.728 112.561 103.491 114.452 100.544 115.855C97.614 117.257 94.054 117.959 89.8636 117.959C85.9574 117.959 82.5749 117.328 79.7163 116.068C76.8754 114.807 74.6381 113.049 73.0046 110.794C71.3888 108.539 70.4744 105.92 70.2614 102.938H77.0795C77.2571 104.997 77.9496 106.702 79.157 108.051C80.3821 109.383 81.9268 110.377 83.7912 111.034C85.6733 111.673 87.6974 111.993 89.8636 111.993C92.3849 111.993 94.6488 111.585 96.6552 110.768C98.6616 109.933 100.251 108.779 101.423 107.305C102.594 105.814 103.18 104.074 103.18 102.085C103.18 100.274 102.674 98.8004 101.662 97.6641C100.65 96.5277 99.3185 95.6044 97.6673 94.8942C96.016 94.1839 94.2315 93.5625 92.3139 93.0298L85.6023 91.1122C81.3409 89.8871 77.9673 88.1381 75.4815 85.8654C72.9957 83.5927 71.7528 80.6186 71.7528 76.9432C71.7528 73.8892 72.5785 71.2259 74.2298 68.9531C75.8988 66.6626 78.136 64.8871 80.9414 63.6264C83.7646 62.348 86.9162 61.7088 90.3963 61.7088C93.9119 61.7088 97.0369 62.3391 99.7713 63.5998C102.506 64.8427 104.672 66.5472 106.27 68.7134C107.886 70.8796 108.738 73.3388 108.827 76.0909H102.435Z"
-              fill="white"/>
-    </svg>
-    <svg id="touchD" class="svg" width="80" height="80" viewBox="0 0 179 179" fill="none"
-         xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="173" height="173" rx="24" fill="white" fill-opacity="0.5" stroke="white"
-              stroke-width="6"/>
-        <path d="M86.4375 117H69.6051V62.4545H87.1832C92.4744 62.4545 97.0021 63.5465 100.766 65.7305C104.531 67.8967 107.416 71.0128 109.422 75.0788C111.429 79.1271 112.432 83.9744 112.432 89.6207C112.432 95.3026 111.42 100.194 109.396 104.296C107.371 108.38 104.424 111.522 100.553 113.724C96.6825 115.908 91.9773 117 86.4375 117ZM76.2102 111.141H86.0114C90.5213 111.141 94.2589 110.271 97.2241 108.531C100.189 106.79 102.4 104.314 103.856 101.1C105.312 97.886 106.04 94.0597 106.04 89.6207C106.04 85.2173 105.321 81.4265 103.882 78.2482C102.444 75.0522 100.296 72.6019 97.4371 70.8974C94.5785 69.1751 91.0185 68.3139 86.7571 68.3139H76.2102V111.141Z"
-              fill="white"/>
-    </svg>
-</div>
-<div class="entrer">
-    <svg width="120" height="auto" viewBox="0 0 241 330" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <mask id="path-1-inside-1_5_2" fill="white">
+    <div class="start">
+        <div class="texteStart">
+            <div class="title">Un zeste d'éclat</div>
+            <div class="subTitle">Zoé Gabet portfolio</div>
+            <div class="subTexte">Êtes-vous prêt à plonger dans un monde fantastique de rêves, d'espoirs et
+                d'accomplissements ?
+                Partez à la découverte de mon parcours, de mes créations, du lycée jusqu’à aujourd’hui, sans oublier mes
+                passions qui m’accompagnent au fil du temps.
+                <br><br>
+                Il est conseillé de naviguer avec une souris.
+            </div>
+            <div class="btnStart">Découvrir</div>
+        </div>
+    </div>
+    <div class="controls">
+        <svg id="touchZ" class="svg" width="80" height="80" viewBox="0 0 179 179" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="173" height="173" rx="24" fill="white" fill-opacity="0.5" stroke="white"
+                stroke-width="6" />
+            <path
+                d="M70.794 117V112.206L100.197 68.3139H70.4744V62.4545H108.081V67.2486L78.6776 111.141H108.401V117H70.794Z"
+                fill="white" />
+        </svg>
+        <svg id="touchQ" class="svg" width="80" height="80" viewBox="0 0 179 179" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="173" height="173" rx="24" fill="white" fill-opacity="0.5" stroke="white"
+                stroke-width="6" />
+            <path
+                d="M87.4205 99.9545H94.6648L100.737 107.945L102.335 110.075L111.391 122.114H104.146L98.1804 114.124L96.6889 112.099L87.4205 99.9545ZM113.628 89.7273C113.628 95.4801 112.589 100.452 110.512 104.642C108.434 108.832 105.585 112.064 101.962 114.337C98.3402 116.609 94.2031 117.746 89.5511 117.746C84.8991 117.746 80.7621 116.609 77.1399 114.337C73.5178 112.064 70.668 108.832 68.5906 104.642C66.5131 100.452 65.4744 95.4801 65.4744 89.7273C65.4744 83.9744 66.5131 79.0028 68.5906 74.8125C70.668 70.6222 73.5178 67.3906 77.1399 65.1179C80.7621 62.8452 84.8991 61.7088 89.5511 61.7088C94.2031 61.7088 98.3402 62.8452 101.962 65.1179C105.585 67.3906 108.434 70.6222 110.512 74.8125C112.589 79.0028 113.628 83.9744 113.628 89.7273ZM107.236 89.7273C107.236 85.0043 106.446 81.0181 104.865 77.7688C103.303 74.5195 101.181 72.0604 98.5 70.3913C95.8366 68.7223 92.8537 67.8878 89.5511 67.8878C86.2486 67.8878 83.2567 68.7223 80.5756 70.3913C77.9123 72.0604 75.7905 74.5195 74.2102 77.7688C72.6477 81.0181 71.8665 85.0043 71.8665 89.7273C71.8665 94.4503 72.6477 98.4364 74.2102 101.686C75.7905 104.935 77.9123 107.394 80.5756 109.063C83.2567 110.732 86.2486 111.567 89.5511 111.567C92.8537 111.567 95.8366 110.732 98.5 109.063C101.181 107.394 103.303 104.935 104.865 101.686C106.446 98.4364 107.236 94.4503 107.236 89.7273Z"
+                fill="white" />
+        </svg>
+        <svg id="touchS" class="svg" width="80" height="80" viewBox="0 0 179 179" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="173" height="173" rx="24" fill="white" fill-opacity="0.5" stroke="white"
+                stroke-width="6" />
+            <path
+                d="M102.435 76.0909C102.115 73.392 100.819 71.2969 98.5462 69.8054C96.2734 68.3139 93.4858 67.5682 90.1832 67.5682C87.7685 67.5682 85.6555 67.9588 83.8445 68.7401C82.0511 69.5213 80.6484 70.5955 79.6364 71.9627C78.642 73.3299 78.1449 74.8835 78.1449 76.6236C78.1449 78.0795 78.4911 79.3313 79.1836 80.3789C79.8938 81.4087 80.7994 82.2699 81.9002 82.9624C83.0011 83.6371 84.1552 84.1964 85.3626 84.6403C86.57 85.0664 87.6797 85.4126 88.6918 85.679L94.2315 87.1705C95.652 87.5433 97.2322 88.0582 98.9723 88.7152C100.73 89.3722 102.408 90.2688 104.006 91.4052C105.622 92.5238 106.953 93.962 108.001 95.7198C109.049 97.4776 109.572 99.6349 109.572 102.192C109.572 105.139 108.8 107.803 107.255 110.182C105.728 112.561 103.491 114.452 100.544 115.855C97.614 117.257 94.054 117.959 89.8636 117.959C85.9574 117.959 82.5749 117.328 79.7163 116.068C76.8754 114.807 74.6381 113.049 73.0046 110.794C71.3888 108.539 70.4744 105.92 70.2614 102.938H77.0795C77.2571 104.997 77.9496 106.702 79.157 108.051C80.3821 109.383 81.9268 110.377 83.7912 111.034C85.6733 111.673 87.6974 111.993 89.8636 111.993C92.3849 111.993 94.6488 111.585 96.6552 110.768C98.6616 109.933 100.251 108.779 101.423 107.305C102.594 105.814 103.18 104.074 103.18 102.085C103.18 100.274 102.674 98.8004 101.662 97.6641C100.65 96.5277 99.3185 95.6044 97.6673 94.8942C96.016 94.1839 94.2315 93.5625 92.3139 93.0298L85.6023 91.1122C81.3409 89.8871 77.9673 88.1381 75.4815 85.8654C72.9957 83.5927 71.7528 80.6186 71.7528 76.9432C71.7528 73.8892 72.5785 71.2259 74.2298 68.9531C75.8988 66.6626 78.136 64.8871 80.9414 63.6264C83.7646 62.348 86.9162 61.7088 90.3963 61.7088C93.9119 61.7088 97.0369 62.3391 99.7713 63.5998C102.506 64.8427 104.672 66.5472 106.27 68.7134C107.886 70.8796 108.738 73.3388 108.827 76.0909H102.435Z"
+                fill="white" />
+        </svg>
+        <svg id="touchD" class="svg" width="80" height="80" viewBox="0 0 179 179" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="173" height="173" rx="24" fill="white" fill-opacity="0.5" stroke="white"
+                stroke-width="6" />
+            <path
+                d="M86.4375 117H69.6051V62.4545H87.1832C92.4744 62.4545 97.0021 63.5465 100.766 65.7305C104.531 67.8967 107.416 71.0128 109.422 75.0788C111.429 79.1271 112.432 83.9744 112.432 89.6207C112.432 95.3026 111.42 100.194 109.396 104.296C107.371 108.38 104.424 111.522 100.553 113.724C96.6825 115.908 91.9773 117 86.4375 117ZM76.2102 111.141H86.0114C90.5213 111.141 94.2589 110.271 97.2241 108.531C100.189 106.79 102.4 104.314 103.856 101.1C105.312 97.886 106.04 94.0597 106.04 89.6207C106.04 85.2173 105.321 81.4265 103.882 78.2482C102.444 75.0522 100.296 72.6019 97.4371 70.8974C94.5785 69.1751 91.0185 68.3139 86.7571 68.3139H76.2102V111.141Z"
+                fill="white" />
+        </svg>
+    </div>
+    <div class="entrer">
+        <svg width="120" height="auto" viewBox="0 0 241 330" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <mask id="path-1-inside-1_5_2" fill="white">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M27 0C12.0883 0 0 12.0883 0 27V152C0 166.912 12.0883 179 27 179H62V303C62 317.912 74.0883 330 89 330H214C228.912 330 241 317.912 241 303V27C241 12.0883 228.912 0 214 0H152H89H27Z" />
+            </mask>
             <path fill-rule="evenodd" clip-rule="evenodd"
-                  d="M27 0C12.0883 0 0 12.0883 0 27V152C0 166.912 12.0883 179 27 179H62V303C62 317.912 74.0883 330 89 330H214C228.912 330 241 317.912 241 303V27C241 12.0883 228.912 0 214 0H152H89H27Z"/>
-        </mask>
-        <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M27 0C12.0883 0 0 12.0883 0 27V152C0 166.912 12.0883 179 27 179H62V303C62 317.912 74.0883 330 89 330H214C228.912 330 241 317.912 241 303V27C241 12.0883 228.912 0 214 0H152H89H27Z"
-              fill="white" fill-opacity="0.5"/>
-        <path d="M62 179H68V173H62V179ZM6 27C6 15.402 15.402 6 27 6V-6C8.7746 -6 -6 8.77461 -6 27H6ZM6 152V27H-6V152H6ZM27 173C15.402 173 6 163.598 6 152H-6C-6 170.225 8.77461 185 27 185V173ZM62 173H27V185H62V173ZM68 303V179H56V303H68ZM89 324C77.402 324 68 314.598 68 303H56C56 321.225 70.7746 336 89 336V324ZM214 324H89V336H214V324ZM235 303C235 314.598 225.598 324 214 324V336C232.225 336 247 321.225 247 303H235ZM235 27V303H247V27H235ZM214 6C225.598 6 235 15.402 235 27H247C247 8.7746 232.225 -6 214 -6V6ZM152 6H214V-6H152V6ZM89 6H152V-6H89V6ZM27 6H89V-6H27V6Z"
-              fill="white" mask="url(#path-1-inside-1_5_2)"/>
-        <path d="M39.6364 106V59.4545H67.7273V64.4545H45.2727V80.1818H66.2727V85.1818H45.2727V101H68.0909V106H39.6364ZM82.5227 85V106H77.1591V71.0909H82.3409V76.5455H82.7955C83.6136 74.7727 84.8561 73.3485 86.5227 72.2727C88.1894 71.1818 90.3409 70.6364 92.9773 70.6364C95.3409 70.6364 97.4091 71.1212 99.1818 72.0909C100.955 73.0455 102.333 74.5 103.318 76.4545C104.303 78.3939 104.795 80.8485 104.795 83.8182V106H99.4318V84.1818C99.4318 81.4394 98.7197 79.303 97.2955 77.7727C95.8712 76.2273 93.9167 75.4545 91.4318 75.4545C89.7197 75.4545 88.1894 75.8258 86.8409 76.5682C85.5076 77.3106 84.4545 78.3939 83.6818 79.8182C82.9091 81.2424 82.5227 82.9697 82.5227 85ZM129.778 71.0909V75.6364H111.688V71.0909H129.778ZM116.96 62.7273H122.324V96C122.324 97.5152 122.544 98.6515 122.983 99.4091C123.438 100.152 124.013 100.652 124.71 100.909C125.422 101.152 126.172 101.273 126.96 101.273C127.551 101.273 128.036 101.242 128.415 101.182C128.794 101.106 129.097 101.045 129.324 101L130.415 105.818C130.051 105.955 129.544 106.091 128.892 106.227C128.241 106.379 127.415 106.455 126.415 106.455C124.9 106.455 123.415 106.129 121.96 105.477C120.521 104.826 119.324 103.833 118.369 102.5C117.43 101.167 116.96 99.4848 116.96 97.4545V62.7273ZM137.847 106V71.0909H143.028V76.3636H143.392C144.028 74.6364 145.18 73.2348 146.847 72.1591C148.513 71.0833 150.392 70.5455 152.483 70.5455C152.877 70.5455 153.369 70.553 153.96 70.5682C154.551 70.5833 154.998 70.6061 155.301 70.6364V76.0909C155.119 76.0455 154.703 75.9773 154.051 75.8864C153.415 75.7803 152.741 75.7273 152.028 75.7273C150.331 75.7273 148.816 76.0833 147.483 76.7955C146.165 77.4924 145.119 78.4621 144.347 79.7045C143.589 80.9318 143.21 82.3333 143.21 83.9091V106H137.847ZM175.233 106.727C171.869 106.727 168.968 105.985 166.528 104.5C164.104 103 162.233 100.909 160.915 98.2273C159.612 95.5303 158.96 92.3939 158.96 88.8182C158.96 85.2424 159.612 82.0909 160.915 79.3636C162.233 76.6212 164.066 74.4848 166.415 72.9545C168.778 71.4091 171.536 70.6364 174.688 70.6364C176.506 70.6364 178.301 70.9394 180.074 71.5455C181.847 72.1515 183.46 73.1364 184.915 74.5C186.369 75.8485 187.528 77.6364 188.392 79.8636C189.256 82.0909 189.688 84.8333 189.688 88.0909V90.3636H162.778V85.7273H184.233C184.233 83.7576 183.839 82 183.051 80.4545C182.278 78.9091 181.172 77.6894 179.733 76.7955C178.309 75.9015 176.627 75.4545 174.688 75.4545C172.551 75.4545 170.703 75.9848 169.142 77.0455C167.597 78.0909 166.407 79.4545 165.574 81.1364C164.741 82.8182 164.324 84.6212 164.324 86.5455V89.6364C164.324 92.2727 164.778 94.5076 165.688 96.3409C166.612 98.1591 167.892 99.5455 169.528 100.5C171.165 101.439 173.066 101.909 175.233 101.909C176.642 101.909 177.915 101.712 179.051 101.318C180.203 100.909 181.195 100.303 182.028 99.5C182.862 98.6818 183.506 97.6667 183.96 96.4545L189.142 97.9091C188.597 99.6667 187.68 101.212 186.392 102.545C185.104 103.864 183.513 104.894 181.619 105.636C179.725 106.364 177.597 106.727 175.233 106.727ZM197.847 106V71.0909H203.028V76.3636H203.392C204.028 74.6364 205.18 73.2348 206.847 72.1591C208.513 71.0833 210.392 70.5455 212.483 70.5455C212.877 70.5455 213.369 70.553 213.96 70.5682C214.551 70.5833 214.998 70.6061 215.301 70.6364V76.0909C215.119 76.0455 214.703 75.9773 214.051 75.8864C213.415 75.7803 212.741 75.7273 212.028 75.7273C210.331 75.7273 208.816 76.0833 207.483 76.7955C206.165 77.4924 205.119 78.4621 204.347 79.7045C203.589 80.9318 203.21 82.3333 203.21 83.9091V106H197.847Z"
-              fill="white"/>
-    </svg>
-</div>
-<div class="bigPopUp1">
-    <div class="popUp">
-        <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Kaiserstuhl Escape</div>
-        <div class="popFlex" style="flex-direction: row; align-items: start">
-            <div class="textPop">Lors de cette deuxième année de BUT MMI, il m'a été demandé de réaliser un escape game
-                sur le web jouable sur mobile. Le but étant de découvrir la ville de Mulhouse entièrement en anglais,
-                j'ai décidé de retracer les différentes découvertes du textile et de l'impression sur étoffe dans les
-                années 1880.
-                <br><br>
-                Ce projet a été fait en HTML, CSS et ainsi que Javascript. J'ai pu créer des jeux simples tel que des
-                point and click (recherche d'objets dans une image), du drag and drop ainsi que l'utilisation du tactile
-                pour permettre le dessin. Pour rendre l'escape game plus immersif, j'ai utilisé la géolocation du
-                téléphone qui permet de découvrir les différentes étapes de l'escape game en se déplaçant dans la ville.
-                <br><br>
-                Cela m'a permis d'améliorer mes connaissances en Javascript en utilisant de nombreux événements ainsi
-                que la géolocalisation.
-                <br><br>
-                N'hésitez pas à rajouter debug.html à la fin du lien pour avoir accès à tous les mini-jeux de l'escape
-                game.
-                <br><br>
-                <div class="btnPop"><a href="https://zouwi.github.io/SAE402/">Aller sur le site</a></div>
+                d="M27 0C12.0883 0 0 12.0883 0 27V152C0 166.912 12.0883 179 27 179H62V303C62 317.912 74.0883 330 89 330H214C228.912 330 241 317.912 241 303V27C241 12.0883 228.912 0 214 0H152H89H27Z"
+                fill="white" fill-opacity="0.5" />
+            <path
+                d="M62 179H68V173H62V179ZM6 27C6 15.402 15.402 6 27 6V-6C8.7746 -6 -6 8.77461 -6 27H6ZM6 152V27H-6V152H6ZM27 173C15.402 173 6 163.598 6 152H-6C-6 170.225 8.77461 185 27 185V173ZM62 173H27V185H62V173ZM68 303V179H56V303H68ZM89 324C77.402 324 68 314.598 68 303H56C56 321.225 70.7746 336 89 336V324ZM214 324H89V336H214V324ZM235 303C235 314.598 225.598 324 214 324V336C232.225 336 247 321.225 247 303H235ZM235 27V303H247V27H235ZM214 6C225.598 6 235 15.402 235 27H247C247 8.7746 232.225 -6 214 -6V6ZM152 6H214V-6H152V6ZM89 6H152V-6H89V6ZM27 6H89V-6H27V6Z"
+                fill="white" mask="url(#path-1-inside-1_5_2)" />
+            <path
+                d="M39.6364 106V59.4545H67.7273V64.4545H45.2727V80.1818H66.2727V85.1818H45.2727V101H68.0909V106H39.6364ZM82.5227 85V106H77.1591V71.0909H82.3409V76.5455H82.7955C83.6136 74.7727 84.8561 73.3485 86.5227 72.2727C88.1894 71.1818 90.3409 70.6364 92.9773 70.6364C95.3409 70.6364 97.4091 71.1212 99.1818 72.0909C100.955 73.0455 102.333 74.5 103.318 76.4545C104.303 78.3939 104.795 80.8485 104.795 83.8182V106H99.4318V84.1818C99.4318 81.4394 98.7197 79.303 97.2955 77.7727C95.8712 76.2273 93.9167 75.4545 91.4318 75.4545C89.7197 75.4545 88.1894 75.8258 86.8409 76.5682C85.5076 77.3106 84.4545 78.3939 83.6818 79.8182C82.9091 81.2424 82.5227 82.9697 82.5227 85ZM129.778 71.0909V75.6364H111.688V71.0909H129.778ZM116.96 62.7273H122.324V96C122.324 97.5152 122.544 98.6515 122.983 99.4091C123.438 100.152 124.013 100.652 124.71 100.909C125.422 101.152 126.172 101.273 126.96 101.273C127.551 101.273 128.036 101.242 128.415 101.182C128.794 101.106 129.097 101.045 129.324 101L130.415 105.818C130.051 105.955 129.544 106.091 128.892 106.227C128.241 106.379 127.415 106.455 126.415 106.455C124.9 106.455 123.415 106.129 121.96 105.477C120.521 104.826 119.324 103.833 118.369 102.5C117.43 101.167 116.96 99.4848 116.96 97.4545V62.7273ZM137.847 106V71.0909H143.028V76.3636H143.392C144.028 74.6364 145.18 73.2348 146.847 72.1591C148.513 71.0833 150.392 70.5455 152.483 70.5455C152.877 70.5455 153.369 70.553 153.96 70.5682C154.551 70.5833 154.998 70.6061 155.301 70.6364V76.0909C155.119 76.0455 154.703 75.9773 154.051 75.8864C153.415 75.7803 152.741 75.7273 152.028 75.7273C150.331 75.7273 148.816 76.0833 147.483 76.7955C146.165 77.4924 145.119 78.4621 144.347 79.7045C143.589 80.9318 143.21 82.3333 143.21 83.9091V106H137.847ZM175.233 106.727C171.869 106.727 168.968 105.985 166.528 104.5C164.104 103 162.233 100.909 160.915 98.2273C159.612 95.5303 158.96 92.3939 158.96 88.8182C158.96 85.2424 159.612 82.0909 160.915 79.3636C162.233 76.6212 164.066 74.4848 166.415 72.9545C168.778 71.4091 171.536 70.6364 174.688 70.6364C176.506 70.6364 178.301 70.9394 180.074 71.5455C181.847 72.1515 183.46 73.1364 184.915 74.5C186.369 75.8485 187.528 77.6364 188.392 79.8636C189.256 82.0909 189.688 84.8333 189.688 88.0909V90.3636H162.778V85.7273H184.233C184.233 83.7576 183.839 82 183.051 80.4545C182.278 78.9091 181.172 77.6894 179.733 76.7955C178.309 75.9015 176.627 75.4545 174.688 75.4545C172.551 75.4545 170.703 75.9848 169.142 77.0455C167.597 78.0909 166.407 79.4545 165.574 81.1364C164.741 82.8182 164.324 84.6212 164.324 86.5455V89.6364C164.324 92.2727 164.778 94.5076 165.688 96.3409C166.612 98.1591 167.892 99.5455 169.528 100.5C171.165 101.439 173.066 101.909 175.233 101.909C176.642 101.909 177.915 101.712 179.051 101.318C180.203 100.909 181.195 100.303 182.028 99.5C182.862 98.6818 183.506 97.6667 183.96 96.4545L189.142 97.9091C188.597 99.6667 187.68 101.212 186.392 102.545C185.104 103.864 183.513 104.894 181.619 105.636C179.725 106.364 177.597 106.727 175.233 106.727ZM197.847 106V71.0909H203.028V76.3636H203.392C204.028 74.6364 205.18 73.2348 206.847 72.1591C208.513 71.0833 210.392 70.5455 212.483 70.5455C212.877 70.5455 213.369 70.553 213.96 70.5682C214.551 70.5833 214.998 70.6061 215.301 70.6364V76.0909C215.119 76.0455 214.703 75.9773 214.051 75.8864C213.415 75.7803 212.741 75.7273 212.028 75.7273C210.331 75.7273 208.816 76.0833 207.483 76.7955C206.165 77.4924 205.119 78.4621 204.347 79.7045C203.589 80.9318 203.21 82.3333 203.21 83.9091V106H197.847Z"
+                fill="white" />
+        </svg>
+    </div>
+    <div class="bigPopUp1">
+        <div class="popUp">
+            <div class="croix">x</div>
+            <div class="titlePop" style="margin-bottom: 3%; text-align: left">Kaiserstuhl Escape</div>
+            <div class="popFlex" style="flex-direction: row; align-items: start">
+                <div class="textPop">Lors de cette deuxième année de BUT MMI, il m'a été demandé de réaliser un escape
+                    game
+                    sur le web jouable sur mobile. Le but étant de découvrir la ville de Mulhouse entièrement en
+                    anglais,
+                    j'ai décidé de retracer les différentes découvertes du textile et de l'impression sur étoffe dans
+                    les
+                    années 1880.
+                    <br><br>
+                    Ce projet a été fait en HTML, CSS et ainsi que Javascript. J'ai pu créer des jeux simples tel que
+                    des
+                    point and click (recherche d'objets dans une image), du drag and drop ainsi que l'utilisation du
+                    tactile
+                    pour permettre le dessin. Pour rendre l'escape game plus immersif, j'ai utilisé la géolocation du
+                    téléphone qui permet de découvrir les différentes étapes de l'escape game en se déplaçant dans la
+                    ville.
+                    <br><br>
+                    Cela m'a permis d'améliorer mes connaissances en Javascript en utilisant de nombreux événements
+                    ainsi
+                    que la géolocalisation.
+                    <br><br>
+                    N'hésitez pas à rajouter debug.html à la fin du lien pour avoir accès à tous les mini-jeux de
+                    l'escape
+                    game.
+                    <br><br>
+                    <div class="btnPop"><a href="https://zouwi.github.io/SAE402/">Aller sur le site</a></div>
+                </div>
+                <img width="400" src="./textures/projectPROG/fabricaeViam.JPG" alt="fabricaeViam">
             </div>
-            <img width="400" src="./textures/projectPROG/fabricaeViam.JPG" alt="fabricaeViam">
         </div>
     </div>
-</div>
-<div class="bigPopUp2">
-    <div class="popUp">
-        <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Retro Rococo</div>
-        <div class="popFlex">
-            <div class="textPop">Retro Rococo est un site web réalisé en troisième et dernière année de BUT MMI. Ce site
-                a été fait en groupe de 2 personnes, et a pour but d'être un site d'e-commerce.
-                <br><br>
-                Ce site d'e-commerce a été fait sur Prestashop et possède plusieurs fonctionnalités telles qu'une IA
-                générative de produits et de recommandations, un chat en temps réel fait avec Node.JS et l'utilisation
-                de Three.JS pour la 3D.
-                <br><br>
-                <div class="btnPop"><a href="https://shop.iutmulhouse.fr">Aller sur le site</a></div>
+    <div class="bigPopUp2">
+        <div class="popUp">
+            <div class="croix">x</div>
+            <div class="titlePop" style="margin-bottom: 3%; text-align: left">Retro Rococo</div>
+            <div class="popFlex">
+                <div class="textPop">Retro Rococo est un site web réalisé en troisième et dernière année de BUT MMI. Ce
+                    site
+                    a été fait en groupe de 2 personnes, et a pour but d'être un site d'e-commerce.
+                    <br><br>
+                    Ce site d'e-commerce a été fait sur Prestashop et possède plusieurs fonctionnalités telles qu'une IA
+                    générative de produits et de recommandations, un chat en temps réel fait avec Node.JS et
+                    l'utilisation
+                    de Three.JS pour la 3D.
+                    <br><br>
+                    <div class="btnPop"><a href="https://shop.iutmulhouse.fr">Aller sur le site</a></div>
+                </div>
+                <img width="800" src="./textures/projectPROG/retroRococo.JPG" alt="retro_rococo">
             </div>
-            <img width="800" src="./textures/projectPROG/retroRococo.JPG" alt="retro_rococo">
         </div>
     </div>
-</div>
-<div class="bigPopUp3">
-    <div class="popUp">
-        <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Affiches</div>
-        <div class="popFlex">
-            <div class="textPop">Pendant mon temps libre, j'aime pratiquer sur Photoshop et Illustrator pour découvrir
-                les différents outils et explorer leurs possibilités. J'ai notamment réalisé plusieurs affiches sur des
-                thèmes variés, en utilisant des styles divers.
+    <div class="bigPopUp3">
+        <div class="popUp">
+            <div class="croix">x</div>
+            <div class="titlePop" style="margin-bottom: 3%; text-align: left">Affiches</div>
+            <div class="popFlex">
+                <div class="textPop">Pendant mon temps libre, j'aime pratiquer sur Photoshop et Illustrator pour
+                    découvrir
+                    les différents outils et explorer leurs possibilités. J'ai notamment réalisé plusieurs affiches sur
+                    des
+                    thèmes variés, en utilisant des styles divers.
+                    <br><br>
+                    Grâce à ces exercices, j'ai pu développer ma créativité et améliorer mon aisance avec ces logiciels
+                    en
+                    testant et utilisant divers outils.
+                </div>
+                <div class="imgPres">
+                    <img width="400" src="./textures/projectCREA/juliette.jpg" alt="affiche_juliette">
+                    <img width="400" src="./textures/projectCREA/flower.jpg" alt="affiche_flower">
+                    <img width="400" src="./textures/projectCREA/noodles-factory.jpg" alt="affiche_noodles">
+                    <img width="400" src="./textures/projectCREA/affichefinalfinal.jpg" alt="affiche_skyte">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bigPopUp4">
+        <div class="popUp">
+            <div class="croix">x</div>
+            <div class="titlePop" style="margin-bottom: 3%; text-align: left">Créations</div>
+            <div class="textPop" style="margin-bottom: 30px">Ces créations représentent le fruit de ma première
+                utilisation
+                de Photofiltre, un logiciel de modification de photos comparable à Photoshop. J'explore les modes de
+                fusion
+                avec différentes textures et couleurs pour créer une harmonie visuelle basée sur une image de départ.
                 <br><br>
-                Grâce à ces exercices, j'ai pu développer ma créativité et améliorer mon aisance avec ces logiciels en
-                testant et utilisant divers outils.
+                Ces réalisations, bien que récentes, témoignent d'une pratique que j’ai développée depuis avant
+                l’obtention
+                de mon bac STD2A. Grâce à cette expérience, j’ai acquis une maîtrise des logiciels tels que Photoshop et
+                Illustrator, tout en développant ma créativité en expérimentant divers résultats selon les modes de
+                fusion.
             </div>
             <div class="imgPres">
-                <img width="400" src="./textures/projectCREA/juliette.jpg" alt="affiche_juliette">
-                <img width="400" src="./textures/projectCREA/flower.jpg" alt="affiche_flower">
-                <img width="400" src="./textures/projectCREA/noodles-factory.jpg" alt="affiche_noodles">
-                <img width="400" src="./textures/projectCREA/affichefinalfinal.jpg" alt="affiche_skyte">
+                <img width="600" src="./textures/projectCREA/seishi.png" alt="creation_seishi">
+                <img width="1000" src="./textures/projectCREA/so dream.png" alt="creation_sodream">
+                <img width="600" src="./textures/projectCREA/サムライ.jpg" alt="creation_サムライ">
+                <img width="600" src="./textures/projectCREA/roses-garden.jpg" alt="creation_roses">
             </div>
         </div>
     </div>
-</div>
-<div class="bigPopUp4">
-    <div class="popUp">
-        <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Créations</div>
-        <div class="textPop" style="margin-bottom: 30px">Ces créations représentent le fruit de ma première utilisation
-            de Photofiltre, un logiciel de modification de photos comparable à Photoshop. J'explore les modes de fusion
-            avec différentes textures et couleurs pour créer une harmonie visuelle basée sur une image de départ.
-            <br><br>
-            Ces réalisations, bien que récentes, témoignent d'une pratique que j’ai développée depuis avant l’obtention
-            de mon bac STD2A. Grâce à cette expérience, j’ai acquis une maîtrise des logiciels tels que Photoshop et
-            Illustrator, tout en développant ma créativité en expérimentant divers résultats selon les modes de fusion.
-        </div>
-        <div class="imgPres">
-            <img width="600" src="./textures/projectCREA/seishi.png" alt="creation_seishi">
-            <img width="1000" src="./textures/projectCREA/so dream.png" alt="creation_sodream">
-            <img width="600" src="./textures/projectCREA/サムライ.jpg" alt="creation_サムライ">
-            <img width="600" src="./textures/projectCREA/roses-garden.jpg" alt="creation_roses">
+    <div class="bigPopUp6">
+        <div class="popUp">
+            <div class="croix">x</div>
+            <div class="titlePop" style="margin-bottom: 3%; text-align: left">Projet STD2A</div>
+            <div class="popFlex">
+                <div class="textPop">Lors de ma dernière année de bac STD2A, j’ai travaillé sur de nombreux sujets de
+                    bac
+                    pour préparer mon épreuve de spécialisation. Ces sujets, à réaliser en 4 heures ou moins, étaient
+                    exécutés sur de simples feuilles blanches, en conditions d'examen.
+                    <br><br>
+                    Ce projet porte sur l'art engagé et comprend diverses analyses d'œuvres, ainsi que mes
+                    problématiques et
+                    leurs réponses à travers des croquis et des explications détaillées.
+                    <br><br>
+                    Le PDF contient l’intégralité de ce projet.
+                    <br><br>
+                    <div class="btnPop"><a
+                            href="https://drive.google.com/file/d/1J_tiqXqhRYu02crC3hLlsk52MtZgXqy8/view?usp=sharing">Accéder
+                            au PDF</a></div>
+                </div>
+                <img width="800" src="./textures/projectCREA/std2a.JPG" alt="projet_std2a">
+            </div>
         </div>
     </div>
-</div>
-<div class="bigPopUp6">
-    <div class="popUp">
-        <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Projet STD2A</div>
-        <div class="popFlex">
-            <div class="textPop">Lors de ma dernière année de bac STD2A, j’ai travaillé sur de nombreux sujets de bac
-                pour préparer mon épreuve de spécialisation. Ces sujets, à réaliser en 4 heures ou moins, étaient
-                exécutés sur de simples feuilles blanches, en conditions d'examen.
+    <div class="bigPopUp7">
+        <div class="popUp">
+            <div class="croix">x</div>
+            <div class="titlePop" style="margin-bottom: 3%; text-align: left">Le web design</div>
+            <div class="textPop" style="margin-bottom: 30px">Avec mon bac en arts appliqués et prochainement mon diplôme
+                en
+                BUT MMI, je souhaite combiner ces deux compétences pour réaliser des projets uniques qui reflètent ma
+                vision
+                créative et technique.
                 <br><br>
-                Ce projet porte sur l'art engagé et comprend diverses analyses d'œuvres, ainsi que mes problématiques et
-                leurs réponses à travers des croquis et des explications détaillées.
+                Le site sur lequel vous naviguez illustre mon univers et mes acquis en web design. Mon objectif est de
+                concevoir des sites web mémorables, alliant une esthétique soignée à une expérience utilisateur
+                intuitive et
+                fluide en termes de UI et UX.
+            </div>
+            <img width="400" src="./textures/projectCREA/zuwi.jpg" alt="moi">
+        </div>
+    </div>
+    <div class="bigPopUp8">
+        <div class="popUp">
+            <div class="croix">x</div>
+            <div class="titlePop" style="margin-bottom: 3%; text-align: left">Les travaux d'imprimerie</div>
+            <div class="textPop" style="margin-bottom: 30px">Durant mon alternance, j'ai été chargé de créer une
+                application, en commençant par la conception de la maquette sur Figma, la création de la base de
+                données, la
+                programmation, et la mise en production.
                 <br><br>
-                Le PDF contient l’intégralité de ce projet.
+                La programmation a été réalisée en C# avec une architecture MVC et une base de données Oracle. J'ai
+                développé un formulaire pour la création de demandes avec de multiples options, une fonctionnalité de
+                recherche avec filtres rapides et formulaire, un tableau de bord pour chaque utilisateur, ainsi qu'une
+                page
+                de gestion permettant de valider, modifier ou supprimer une demande.
+                <br><br>
+                Malheureusement, je ne peux pas fournir de lien vers l'application web.
+            </div>
+            <div class="imgPres">
+                <img width="820" src="./textures/projectPROG/creaDemande-travaux.jpg" alt="travaux_creaDemande">
+                <img width="820" src="./textures/projectPROG/rechDemande-travaux.jpg" alt="travaux_rechDemande">
+                <img width="820" src="./textures/projectPROG/tableauBord-travaux.jpg" alt="travaux_tableDemande">
+            </div>
+        </div>
+    </div>
+    <div class="bigPopUp9">
+        <div class="popUp">
+            <div class="croix">x</div>
+            <div class="titlePop" style="margin-bottom: 3%; text-align: left">Maquette Figma des travaux d'imprimerie
+            </div>
+            <div class="textPop" style="margin-bottom: 30px">Pour ce projet, j'ai commencé par la création d'une
+                maquette
+                sur Figma. J'ai accordé une grande importance aux détails pour qu'elle soit facilement compréhensible
+                par le
+                client.
+                <br><br>
+                J'ai utilisé les fonctionnalités de mise en page automatique, facilitant l'alignement des éléments,
+                ainsi
+                que les prototypes permettant les animations et interactions, comme un menu déroulant ou un changement
+                de
+                page.
                 <br><br>
                 <div class="btnPop"><a
-                        href="https://drive.google.com/file/d/1J_tiqXqhRYu02crC3hLlsk52MtZgXqy8/view?usp=sharing">Accéder
-                    au PDF</a></div>
+                        href="https://www.figma.com/design/ewsMxMHuiUiRDUmqWJEm6D/Travaux-repro?node-id=375-5680&t=kHAnyPpIPiNqGbsy-1">Accéder
+                        à
+                        la maquette</a></div>
             </div>
-            <img width="800" src="./textures/projectCREA/std2a.JPG" alt="projet_std2a">
+            <img width="900" src="./textures/projectPROG/figma.jpg" alt="travaux_figma">
         </div>
     </div>
-</div>
-<div class="bigPopUp7">
-    <div class="popUp">
-        <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Le web design</div>
-        <div class="textPop" style="margin-bottom: 30px">Avec mon bac en arts appliqués et prochainement mon diplôme en
-            BUT MMI, je souhaite combiner ces deux compétences pour réaliser des projets uniques qui reflètent ma vision
-            créative et technique.
-            <br><br>
-            Le site sur lequel vous naviguez illustre mon univers et mes acquis en web design. Mon objectif est de
-            concevoir des sites web mémorables, alliant une esthétique soignée à une expérience utilisateur intuitive et
-            fluide en termes de UI et UX.
-        </div>
-        <img width="400" src="./textures/projectCREA/zuwi.jpg" alt="moi">
-    </div>
-</div>
-<div class="bigPopUp8">
-    <div class="popUp">
-        <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Les travaux d'imprimerie</div>
-        <div class="textPop" style="margin-bottom: 30px">Durant mon alternance, j'ai été chargé de créer une
-            application, en commençant par la conception de la maquette sur Figma, la création de la base de données, la
-            programmation, et la mise en production.
-            <br><br>
-            La programmation a été réalisée en C# avec une architecture MVC et une base de données Oracle. J'ai
-            développé un formulaire pour la création de demandes avec de multiples options, une fonctionnalité de
-            recherche avec filtres rapides et formulaire, un tableau de bord pour chaque utilisateur, ainsi qu'une page
-            de gestion permettant de valider, modifier ou supprimer une demande.
-            <br><br>
-            Malheureusement, je ne peux pas fournir de lien vers l'application web.
-        </div>
-        <div class="imgPres">
-            <img width="820" src="./textures/projectPROG/creaDemande-travaux.jpg" alt="travaux_creaDemande">
-            <img width="820" src="./textures/projectPROG/rechDemande-travaux.jpg" alt="travaux_rechDemande">
-            <img width="820" src="./textures/projectPROG/tableauBord-travaux.jpg" alt="travaux_tableDemande">
-        </div>
-    </div>
-</div>
-<div class="bigPopUp9">
-    <div class="popUp">
-        <div class="croix">x</div>
-        <div class="titlePop" style="margin-bottom: 3%; text-align: left">Maquette Figma des travaux d'imprimerie</div>
-        <div class="textPop" style="margin-bottom: 30px">Pour ce projet, j'ai commencé par la création d'une maquette
-            sur Figma. J'ai accordé une grande importance aux détails pour qu'elle soit facilement compréhensible par le
-            client.
-            <br><br>
-            J'ai utilisé les fonctionnalités de mise en page automatique, facilitant l'alignement des éléments, ainsi
-            que les prototypes permettant les animations et interactions, comme un menu déroulant ou un changement de
-            page.
-            <br><br>
-            <div class="btnPop"><a
-                    href="https://www.figma.com/design/ewsMxMHuiUiRDUmqWJEm6D/Travaux-repro?node-id=375-5680&t=kHAnyPpIPiNqGbsy-1">Accéder à
-                la maquette</a></div>
-        </div>
-        <img width="900" src="./textures/projectPROG/figma.jpg" alt="travaux_figma">
-    </div>
-</div>
 
-<canvas class="webgl"></canvas>
-<script type="module" src="main.js"></script>
+    <div class="bigPopUp10">
+        <div class="popUp">
+            <div class="croix">x</div>
+            <div class="titlePop" style="margin-bottom: 3%; text-align: left">Site vitrine crochet en react
+            </div>
+            <div class="textPop" style="margin-bottom: 30px">Au Fil du Temps est un site vitrine développé dans le cadre
+                d’un projet personnel. Conçu avec React, il intègre des éléments 3D interactifs grâce à Three.js,
+                offrant une expérience utilisateur immersive.
+                <br><br>
+                Le projet repose sur une architecture serverless, avec une base de données MongoDB permettant la gestion
+                des articles (ajout, modification, suppression) via une interface dédiée.
+                <br><br>
+                <div class="btnPop"><a href="https://au-fil-du-temps.netlify.app/">Accéder au site</a></div>
+            </div>
+            <div class="imgPres">
+                <img width="900" src="./textures/projectPROG/fildutemps1.PNG" alt="site_fil_du_temps">
+                <img width="900" src="./textures/projectPROG/fildutemps2.PNG" alt="site_fil_du_temps2">
+            </div>
+        </div>
+    </div>
+
+    <canvas class="webgl"></canvas>
+    <script type="module" src="main.js"></script>
 </body>
+
 </html>
